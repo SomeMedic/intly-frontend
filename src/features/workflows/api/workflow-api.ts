@@ -10,7 +10,6 @@ import type {
   PipelineType,
   PipelineFilters,
   SavedView,
-  SearchResult,
   TaskBoard,
   TaskItem,
   Watchlist,
