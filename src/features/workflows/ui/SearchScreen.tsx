@@ -7,6 +7,7 @@ import { Search, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { descriptionPreviewText } from "@/components/intly/opportunity-card/description-preview";
 import { useAuth } from "@/features/auth";
 import { workflowApi } from "../api/workflow-api";
 import {
@@ -97,7 +98,7 @@ export function SearchScreen() {
                       ) : null}
                       {result.excerpt ? (
                         <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
-                          {result.excerpt}
+                          {descriptionPreviewText(result.excerpt)}
                         </p>
                       ) : null}
                     </div>
