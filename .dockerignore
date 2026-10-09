@@ -1,0 +1,13 @@
+.git
+.github
+.next
+node_modules
+coverage
+.DS_Store
+.env*
+!.env.production.example
+*.log
+Dockerfile
+compose.yaml
+ops/*.md
+.local

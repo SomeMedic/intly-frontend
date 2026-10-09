@@ -1,0 +1,305 @@
+@import "tailwindcss";
+
+@config "../../tailwind.config.ts";
+
+:root {
+  color-scheme: light;
+  --background: 270 28% 98%;
+  --foreground: 230 16% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 230 16% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 230 16% 12%;
+  --primary: 268 58% 42%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 214 28% 93%;
+  --secondary-foreground: 230 16% 18%;
+  --muted: 218 28% 94%;
+  --muted-foreground: 226 12% 42%;
+  --accent: 184 70% 38%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 356 64% 46%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 150 57% 34%;
+  --success-foreground: 0 0% 100%;
+  --warning: 39 86% 45%;
+  --warning-foreground: 30 18% 12%;
+  --ai: 274 64% 52%;
+  --ai-foreground: 0 0% 100%;
+  --border: 224 22% 86%;
+  --input: 224 22% 86%;
+  --ring: 184 70% 38%;
+  --radius-sm: 0.45rem;
+  --radius-md: 0.55rem;
+  --radius-lg: 0.7rem;
+  --shadow-soft: 0 12px 34px rgb(31 22 58 / 9%);
+  --shadow-floating: 0 24px 80px rgb(31 22 58 / 20%);
+  --control-height: 2.25rem;
+  --row-height: 2.25rem;
+  --card-padding: 0.875rem;
+  --card-gap: 0.75rem;
+}
+
+html[data-effective-mode="dark"] {
+  color-scheme: dark;
+  --background: 230 22% 8%;
+  --foreground: 216 28% 93%;
+  --card: 230 18% 11%;
+  --card-foreground: 216 28% 93%;
+  --popover: 230 18% 10%;
+  --popover-foreground: 216 28% 93%;
+  --primary: 270 72% 68%;
+  --primary-foreground: 238 28% 8%;
+  --secondary: 226 18% 17%;
+  --secondary-foreground: 216 28% 90%;
+  --muted: 226 18% 15%;
+  --muted-foreground: 220 12% 68%;
+  --accent: 184 72% 48%;
+  --accent-foreground: 230 22% 8%;
+  --destructive: 358 67% 58%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 151 54% 47%;
+  --success-foreground: 230 22% 8%;
+  --warning: 40 90% 58%;
+  --warning-foreground: 230 22% 8%;
+  --ai: 278 82% 70%;
+  --ai-foreground: 230 22% 8%;
+  --border: 225 17% 23%;
+  --input: 225 17% 23%;
+  --ring: 184 72% 48%;
+  --shadow-soft: 0 14px 40px rgb(0 0 0 / 24%);
+  --shadow-floating: 0 24px 90px rgb(0 0 0 / 45%);
+}
+
+
+html[data-theme="forest-teal"][data-effective-mode="light"] {
+  --background: 150 24% 97%;
+  --foreground: 168 28% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 168 28% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 168 28% 10%;
+  --primary: 164 58% 28%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 152 24% 90%;
+  --secondary-foreground: 166 32% 14%;
+  --muted: 148 22% 92%;
+  --muted-foreground: 164 13% 34%;
+  --accent: 38 78% 42%;
+  --accent-foreground: 36 28% 9%;
+  --ai: 178 66% 31%;
+  --ai-foreground: 0 0% 100%;
+  --border: 150 18% 82%;
+  --input: 150 18% 82%;
+  --ring: 164 58% 28%;
+  --shadow-soft: 0 12px 34px rgb(16 55 43 / 10%);
+  --shadow-floating: 0 24px 80px rgb(16 55 43 / 22%);
+}
+
+html[data-theme="forest-teal"][data-effective-mode="dark"] {
+  --background: 168 31% 7%;
+  --foreground: 152 24% 92%;
+  --card: 166 28% 10%;
+  --card-foreground: 152 24% 92%;
+  --popover: 166 30% 9%;
+  --popover-foreground: 152 24% 92%;
+  --primary: 164 62% 54%;
+  --primary-foreground: 168 31% 7%;
+  --secondary: 166 20% 17%;
+  --secondary-foreground: 152 24% 90%;
+  --muted: 166 20% 15%;
+  --muted-foreground: 153 12% 68%;
+  --accent: 39 86% 57%;
+  --accent-foreground: 168 31% 7%;
+  --ai: 178 72% 58%;
+  --ai-foreground: 168 31% 7%;
+  --border: 166 17% 23%;
+  --input: 166 17% 23%;
+  --ring: 164 62% 54%;
+  --shadow-soft: 0 14px 40px rgb(0 0 0 / 26%);
+  --shadow-floating: 0 24px 90px rgb(0 0 0 / 48%);
+}
+
+html[data-theme="warm-clay"][data-effective-mode="light"] {
+  --background: 32 33% 97%;
+  --foreground: 22 24% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 22 24% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 22 24% 12%;
+  --primary: 18 58% 43%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 28 32% 90%;
+  --secondary-foreground: 22 28% 16%;
+  --muted: 30 30% 92%;
+  --muted-foreground: 22 14% 38%;
+  --accent: 210 48% 36%;
+  --accent-foreground: 0 0% 100%;
+  --ai: 302 36% 42%;
+  --ai-foreground: 0 0% 100%;
+  --border: 28 24% 82%;
+  --input: 28 24% 82%;
+  --ring: 18 58% 43%;
+  --shadow-soft: 0 12px 34px rgb(92 51 31 / 10%);
+  --shadow-floating: 0 24px 80px rgb(92 51 31 / 22%);
+}
+
+html[data-theme="warm-clay"][data-effective-mode="dark"] {
+  --background: 24 26% 8%;
+  --foreground: 32 28% 92%;
+  --card: 24 24% 11%;
+  --card-foreground: 32 28% 92%;
+  --popover: 24 25% 10%;
+  --popover-foreground: 32 28% 92%;
+  --primary: 21 72% 61%;
+  --primary-foreground: 24 26% 8%;
+  --secondary: 24 18% 18%;
+  --secondary-foreground: 32 28% 90%;
+  --muted: 24 18% 16%;
+  --muted-foreground: 30 13% 68%;
+  --accent: 201 62% 61%;
+  --accent-foreground: 24 26% 8%;
+  --ai: 304 54% 68%;
+  --ai-foreground: 24 26% 8%;
+  --border: 24 16% 24%;
+  --input: 24 16% 24%;
+  --ring: 21 72% 61%;
+  --shadow-soft: 0 14px 40px rgb(0 0 0 / 26%);
+  --shadow-floating: 0 24px 90px rgb(0 0 0 / 48%);
+}
+
+html[data-theme="graphite-copper"][data-effective-mode="light"] {
+  --background: 36 16% 97%;
+  --foreground: 210 11% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 11% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 11% 11%;
+  --primary: 24 74% 41%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 30 18% 90%;
+  --secondary-foreground: 210 12% 14%;
+  --muted: 32 16% 92%;
+  --muted-foreground: 210 9% 36%;
+  --accent: 165 32% 31%;
+  --accent-foreground: 0 0% 100%;
+  --ai: 276 36% 42%;
+  --ai-foreground: 0 0% 100%;
+  --border: 30 13% 82%;
+  --input: 30 13% 82%;
+  --ring: 24 74% 41%;
+  --shadow-soft: 0 12px 34px rgb(35 33 31 / 10%);
+  --shadow-floating: 0 24px 80px rgb(35 33 31 / 24%);
+}
+
+html[data-theme="graphite-copper"][data-effective-mode="dark"] {
+  --background: 210 12% 7%;
+  --foreground: 34 18% 92%;
+  --card: 210 11% 10%;
+  --card-foreground: 34 18% 92%;
+  --popover: 210 12% 9%;
+  --popover-foreground: 34 18% 92%;
+  --primary: 25 82% 58%;
+  --primary-foreground: 210 12% 7%;
+  --secondary: 210 9% 17%;
+  --secondary-foreground: 34 18% 90%;
+  --muted: 210 9% 15%;
+  --muted-foreground: 36 8% 68%;
+  --accent: 164 45% 56%;
+  --accent-foreground: 210 12% 7%;
+  --ai: 276 58% 70%;
+  --ai-foreground: 210 12% 7%;
+  --border: 210 8% 24%;
+  --input: 210 8% 24%;
+  --ring: 25 82% 58%;
+  --shadow-soft: 0 14px 40px rgb(0 0 0 / 28%);
+  --shadow-floating: 0 24px 90px rgb(0 0 0 / 50%);
+}
+
+
+html[data-density="comfortable"] {
+  --control-height: 2.55rem;
+  --row-height: 2.75rem;
+  --card-padding: 1rem;
+  --card-gap: 1rem;
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
+
+html {
+  min-height: 100%;
+  background: hsl(var(--background));
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 18% -10%, hsl(var(--ai) / 0.08), transparent 28rem),
+    linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted) / 0.42));
+  color: hsl(var(--foreground));
+  font-feature-settings: "rlig" 1, "calt" 1;
+  letter-spacing: 0;
+}
+
+::selection {
+  background: hsl(var(--accent) / 0.28);
+}
+
+.intly-brand-mark {
+  mask: url("/brand/intly-mark.png") center / 132% 132% no-repeat;
+  -webkit-mask: url("/brand/intly-mark.png") center / 132% 132% no-repeat;
+}
+
+.intly-auth-art {
+  animation: intly-art-entrance 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes intly-art-entrance {
+  from { filter: blur(3px); transform: translateY(8px); }
+  to { filter: blur(0); transform: translateY(0); }
+}
+
+:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
+input, textarea, [contenteditable="true"] { caret-color: hsl(var(--primary)); }
+html { scrollbar-color: hsl(var(--muted-foreground) / 0.55) hsl(var(--muted)); }
+a { text-underline-offset: 0.2em; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Apply the account preference to CSS motion as well as MotionConfig. */
+html[data-reduced-motion="true"] *,
+html[data-reduced-motion="true"] *::before,
+html[data-reduced-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+/* Empty application sections keep an editable caret and a useful label without adding draft text. */
+.tiptap [data-semantic-node].is-empty::before {
+  content: attr(data-placeholder);
+  color: hsl(var(--muted-foreground));
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
