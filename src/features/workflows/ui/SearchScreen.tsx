@@ -17,7 +17,10 @@ export function SearchScreen() {
   const locale = resolveWorkflowLocale(user?.settings.locale);
   const [queryText, setQueryText] = useState("");
   const recent = useQuery({ queryKey: ["search", "recent"], queryFn: workflowApi.search.recent });
-  const search = useMutation({ mutationFn: ({ query, scope }: { query: string; scope?: string }) => workflowApi.search.run(query, scope) });
+  const search = useMutation({
+    mutationFn: ({ query, scope }: { query: string; scope?: string }) => workflowApi.search.run(query, scope),
+    onSuccess: () => recent.refetch()
+  });
   const clear = useMutation({ mutationFn: workflowApi.search.clearRecent, onSuccess: () => recent.refetch() });
   const results = search.data?.items ?? [];
 

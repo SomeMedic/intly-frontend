@@ -178,6 +178,7 @@ export type SearchResult = {
   subtitle?: string;
   href: string;
   score?: number;
+  excerpt?: string;
   preview?: Record<string, unknown>;
 };
 

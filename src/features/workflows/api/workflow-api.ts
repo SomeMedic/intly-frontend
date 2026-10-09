@@ -16,6 +16,7 @@ import type {
   Watchlist,
   WatchlistHit
 } from "@/types";
+import { normalizeUnifiedSearchResponse, type UnifiedSearchTransportResponse } from "./search-adapter";
 
 export type CreateTaskPayload = Pick<TaskItem, "boardId" | "title" | "statusColumnId"> & Partial<TaskItem>;
 export type NotificationListInput = { unreadOnly?: boolean; filter?: NotificationFilter; archived?: boolean; cursor?: string | null; limit?: number };
@@ -56,7 +57,8 @@ export const workflowApi = {
     duplicate: (id: string) => api.post<SavedView>(`/saved-views/${id}/duplicate`)
   },
   search: {
-    run: (query: string, scope: string = "all") => api.post<ApiList<SearchResult>>("/search", { query, scope, mode: "hybrid", limit: 20 }),
+    run: (query: string, scope: string = "all") =>
+      api.post<UnifiedSearchTransportResponse>("/search", { query, scope, mode: "hybrid", limit: 20 }).then(normalizeUnifiedSearchResponse),
     recent: () => api.get<ApiList<{ id: string; query: string; scope?: string; createdAt: string }>>("/search/recent"),
     clearRecent: () => api.delete<{ success: true }>("/search/recent")
   },
