@@ -346,9 +346,10 @@ export function OpportunityTable({
                       <MatchScore
                         value={mini.matchScore}
                         label={locale === "ru" ? "Подходит" : "Fit"}
+                        compact
                       />
                     ) : key === "ai" ? (
-                      <MatchScore value={item.aiScore ?? null} label="AI" />
+                      <MatchScore value={item.aiScore ?? null} label="AI" compact />
                     ) : key === "source" ? (
                       <>
                         <span>

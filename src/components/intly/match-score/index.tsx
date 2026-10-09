@@ -3,10 +3,11 @@ import { cn } from "@/lib/utils";
 type MatchScoreProps = {
   value: number | null;
   label: string;
+  compact?: boolean;
   className?: string;
 };
 
-export function MatchScore({ value, label, className }: MatchScoreProps) {
+export function MatchScore({ value, label, compact = false, className }: MatchScoreProps) {
   const hasValue = typeof value === "number" && Number.isFinite(value);
   const clamped = hasValue ? Math.max(0, Math.min(100, Math.round(value))) : null;
   const tone =
@@ -21,13 +22,14 @@ export function MatchScore({ value, label, className }: MatchScoreProps) {
   return (
     <div
       className={cn(
-        "inline-flex min-w-[4.75rem] items-center justify-between gap-2 rounded-md border px-2 py-1 text-xs tabular-nums",
+        "inline-flex items-center rounded-md border px-2 py-1 text-xs tabular-nums",
+        compact ? "justify-center" : "min-w-[4.75rem] justify-between gap-2",
         tone,
         className
       )}
       aria-label={`${label}: ${clamped ?? "—"}`}
     >
-      <span className="truncate text-muted-foreground">{label}</span>
+      <span className={compact ? "sr-only" : "truncate text-muted-foreground"}>{label}</span>
       <span className="font-semibold text-current">{clamped ?? "—"}</span>
     </div>
   );
