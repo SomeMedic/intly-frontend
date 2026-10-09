@@ -2,7 +2,10 @@ import { AuthLayout, LoginForm } from "@/features/auth";
 
 export default function LoginPage() {
   return (
-    <AuthLayout title="Вход" description="Используйте учетную запись, созданную администратором.">
+    <AuthLayout
+      title="Вход в INTLY"
+      description="Войдите в рабочее пространство, чтобы продолжить разбор возможностей."
+    >
       <LoginForm />
     </AuthLayout>
   );

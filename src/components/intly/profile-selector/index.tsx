@@ -10,11 +10,11 @@ import { cn } from "@/lib/utils";
 
 const labels = {
   ru: {
-    choose: "Выбрать профиль",
-    empty: "Нет профиля",
+    choose: "Выберите профиль",
+    empty: "Профиль не выбран",
     menu: "Профили",
-    active: "Активный",
-    create: "Создать профиль",
+    active: "Сейчас используется",
+    create: "Новый профиль",
     openMenu: "Открыть выбор профиля"
   },
   en: {
@@ -27,18 +27,28 @@ const labels = {
   }
 } as const;
 
-export function ProfileSelector({ profile, profiles }: { profile: ProfileSummary | null; profiles: ProfileSummary[] }) {
+export function ProfileSelector({
+  profile,
+  profiles
+}: {
+  profile: ProfileSummary | null;
+  profiles: ProfileSummary[];
+}) {
   const { user } = useAuth();
   const locale = user?.settings.locale === "en" ? "en" : "ru";
   const text = labels[locale];
   const [open, setOpen] = useState(false);
-  const currentLabel = profile ? `${profile.name} · ${profile.targetRole}` : profiles.length ? text.choose : text.empty;
+  const currentLabel = profile
+    ? `${profile.name} · ${profile.targetRole}`
+    : profiles.length
+      ? text.choose
+      : text.empty;
 
   return (
     <div className="relative min-w-0">
       <Button
         variant="outline"
-        className="w-full max-w-[18rem] justify-between"
+        className="w-full max-w-[18rem] justify-between bg-card/90 shadow-sm"
         aria-label={text.openMenu}
         aria-expanded={open}
         aria-controls="profile-selector-menu"
@@ -51,8 +61,13 @@ export function ProfileSelector({ profile, profiles }: { profile: ProfileSummary
         <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
       </Button>
       {open ? (
-        <div id="profile-selector-menu" className="absolute right-0 top-11 z-50 w-[min(22rem,calc(100vw-1rem))] rounded-lg border bg-card p-2 shadow-floating">
-          <p className="px-2 py-1 text-xs font-semibold uppercase text-muted-foreground">{text.menu}</p>
+        <div
+          id="profile-selector-menu"
+          className="absolute right-0 top-11 z-50 w-[min(22rem,calc(100vw-1rem))] rounded-lg border bg-card p-2 shadow-floating"
+        >
+          <p className="px-2 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            {text.menu}
+          </p>
           <div className="mt-1 grid max-h-72 gap-1 overflow-y-auto">
             {profiles.map((item) => {
               const active = profile?.id === item.id;
@@ -61,15 +76,27 @@ export function ProfileSelector({ profile, profiles }: { profile: ProfileSummary
                   key={item.id}
                   href={`/profiles/${item.id}`}
                   onClick={() => setOpen(false)}
-                  className={cn("rounded-md px-2 py-2 text-sm transition hover:bg-muted", active && "border border-primary/35 bg-primary/10")}
+                  className={cn(
+                    "rounded-md px-2 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground",
+                    active &&
+                      "bg-primary/10 text-foreground shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.28)]"
+                  )}
                 >
                   <span className="block truncate font-medium">{item.name}</span>
-                  <span className="mt-0.5 block truncate text-xs text-muted-foreground">{item.targetRole || item.type}</span>
-                  {active ? <span className="mt-1 inline-flex rounded-sm bg-success/10 px-1.5 py-0.5 text-[0.68rem] font-medium text-success">{text.active}</span> : null}
+                  <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                    {item.targetRole || item.type}
+                  </span>
+                  {active ? (
+                    <span className="mt-1 inline-flex rounded-sm border border-success/25 bg-success/10 px-1.5 py-0.5 text-[0.68rem] font-medium text-success">
+                      {text.active}
+                    </span>
+                  ) : null}
                 </Link>
               );
             })}
-            {!profiles.length ? <p className="px-2 py-2 text-sm text-muted-foreground">{text.empty}</p> : null}
+            {!profiles.length ? (
+              <p className="px-2 py-2 text-sm text-muted-foreground">{text.empty}</p>
+            ) : null}
           </div>
           <div className="mt-2 border-t pt-2">
             <Link

@@ -8,7 +8,9 @@ export function PlaceholderPage({ title, description }: { title: string; descrip
     <AppShell>
       <EmptyState
         title={title}
-        description={description ?? "Раздел подключен в маршрутизации и будет заполнен feature-модулем."}
+        description={
+          description ?? "Здесь пока ничего нет. Вернитесь к обзору, чтобы продолжить работу."
+        }
       />
     </AppShell>
   );

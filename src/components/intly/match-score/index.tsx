@@ -2,42 +2,33 @@ import { cn } from "@/lib/utils";
 
 type MatchScoreProps = {
   value: number | null;
-  label: "Match" | "AI";
+  label: string;
   className?: string;
 };
 
 export function MatchScore({ value, label, className }: MatchScoreProps) {
-  if (value === null) {
-    return (
-      <div className={cn("grid place-items-center gap-1 text-center", className)}>
-        <div className="grid size-12 place-items-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">—</div>
-        <span className="text-[0.68rem] font-medium uppercase text-muted-foreground">{label}</span>
-      </div>
-    );
-  }
-
-  const clamped = Math.max(0, Math.min(100, value));
-  const intent =
-    clamped >= 75
-      ? "text-success [--score-color:hsl(var(--success))]"
-      : clamped >= 50
-        ? "text-warning [--score-color:hsl(var(--warning))]"
-        : "text-destructive [--score-color:hsl(var(--destructive))]";
+  const hasValue = typeof value === "number" && Number.isFinite(value);
+  const clamped = hasValue ? Math.max(0, Math.min(100, Math.round(value))) : null;
+  const tone =
+    clamped === null
+      ? "border-border/70 bg-muted/35 text-muted-foreground"
+      : clamped >= 75
+        ? "border-success/25 bg-success/10 text-success"
+        : clamped >= 50
+          ? "border-warning/30 bg-warning/10 text-warning"
+          : "border-destructive/30 bg-destructive/10 text-destructive";
 
   return (
-    <div className={cn("grid place-items-center gap-1 text-center", className)}>
-      <div
-        className={cn(
-          "grid size-12 place-items-center rounded-full text-xs font-semibold",
-          intent
-        )}
-        style={{
-          background: `conic-gradient(var(--score-color) ${clamped * 3.6}deg, hsl(var(--muted)) 0deg)`
-        }}
-      >
-        <span className="grid size-9 place-items-center rounded-full bg-card">{clamped}</span>
-      </div>
-      <span className="text-[0.68rem] font-medium uppercase text-muted-foreground">{label}</span>
+    <div
+      className={cn(
+        "inline-flex min-w-[4.75rem] items-center justify-between gap-2 rounded-md border px-2 py-1 text-xs tabular-nums",
+        tone,
+        className
+      )}
+      aria-label={`${label}: ${clamped ?? "—"}`}
+    >
+      <span className="truncate text-muted-foreground">{label}</span>
+      <span className="font-semibold text-current">{clamped ?? "—"}</span>
     </div>
   );
 }

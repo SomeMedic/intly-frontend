@@ -12,7 +12,7 @@ import type { NotificationFilter, NotificationItem, NotificationListResponse } f
 import { downloadStoredFile } from "@/services/files/download-file";
 import { formatRelativeTime } from "@/lib/utils";
 import { workflowApi } from "../api/workflow-api";
-import { QueryState, ScreenScaffold } from "./ScreenScaffold";
+import { QueryState, ScreenScaffold, workflowPanelClass } from "./ScreenScaffold";
 import {
   emptyNotificationCounts,
   mergeNotificationPages,
@@ -26,7 +26,12 @@ import {
   notificationMatchesFilter,
   updateNotificationPages
 } from "./notification-center";
-import { notificationFilterLabels, notificationKindLabels, resolveWorkflowLocale, type WorkflowLocale } from "./workflow-labels";
+import {
+  notificationFilterLabels,
+  notificationKindLabels,
+  resolveWorkflowLocale,
+  type WorkflowLocale
+} from "./workflow-labels";
 
 const notificationPageLimit = 50;
 const dashboardSummaryPrefix = ["dashboard", "summary"] as const;
@@ -38,7 +43,7 @@ function notificationQueryKey(userId: string | undefined, filter: NotificationFi
 const copy = {
   ru: {
     title: "Уведомления",
-    description: "Рабочие события, выгрузки, задачи и системные статусы.",
+    description: "События по возможностям, откликам, задачам и системе.",
     emptyTitle: "Уведомлений нет",
     emptyDescription: "Здесь появятся новые события по возможностям, задачам и системе.",
     filteredEmptyTitle: "В этом фильтре пусто",
@@ -60,7 +65,7 @@ const copy = {
   },
   en: {
     title: "Notifications",
-    description: "Work events, exports, tasks, and system status.",
+    description: "Events from opportunities, responses, tasks, and the system.",
     emptyTitle: "No notifications",
     emptyDescription: "New opportunity, task, and system events will appear here.",
     filteredEmptyTitle: "Nothing in this filter",
@@ -96,7 +101,12 @@ export function NotificationsScreen() {
   const [filter, setFilter] = useState<NotificationFilter>("all");
   const query = useInfiniteQuery({
     queryKey: notificationQueryKey(user?.id, filter),
-    queryFn: ({ pageParam }) => workflowApi.notifications.list({ filter, cursor: typeof pageParam === "string" ? pageParam : null, limit: notificationPageLimit }),
+    queryFn: ({ pageParam }) =>
+      workflowApi.notifications.list({
+        filter,
+        cursor: typeof pageParam === "string" ? pageParam : null,
+        limit: notificationPageLimit
+      }),
     initialPageParam: null as string | null,
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     enabled: Boolean(user),
@@ -108,15 +118,24 @@ export function NotificationsScreen() {
   const total = firstPage?.total ?? items.length;
   const ownerHistoryTotal = counts.all + counts.archived;
 
-  const updateNotification = (actionOwnerId: string, id: string, patch: Partial<NotificationItem>) => {
-    for (const cache of queryClient.getQueryCache().findAll({ queryKey: ownerNotificationPrefix(actionOwnerId) })) {
+  const updateNotification = (
+    actionOwnerId: string,
+    id: string,
+    patch: Partial<NotificationItem>
+  ) => {
+    for (const cache of queryClient
+      .getQueryCache()
+      .findAll({ queryKey: ownerNotificationPrefix(actionOwnerId) })) {
       const cacheFilter = notificationFilters.find((value) => value === cache.queryKey[2]);
       queryClient.setQueryData(cache.queryKey, (current: unknown) => {
-        return updateNotificationPages(current as undefined | { pages: NotificationListResponse[]; pageParams: unknown[] }, (item) => {
-          if (item.id !== id) return item;
-          const next = { ...item, ...patch };
-          return cacheFilter && !notificationMatchesFilter(next, cacheFilter) ? null : next;
-        });
+        return updateNotificationPages(
+          current as undefined | { pages: NotificationListResponse[]; pageParams: unknown[] },
+          (item) => {
+            if (item.id !== id) return item;
+            const next = { ...item, ...patch };
+            return cacheFilter && !notificationMatchesFilter(next, cacheFilter) ? null : next;
+          }
+        );
       });
     }
   };
@@ -148,14 +167,19 @@ export function NotificationsScreen() {
     onMutate: async ({ ownerId: actionOwnerId }) => {
       await queryClient.cancelQueries({ queryKey: ownerNotificationPrefix(actionOwnerId) });
       const readAt = new Date().toISOString();
-      for (const cache of queryClient.getQueryCache().findAll({ queryKey: ownerNotificationPrefix(actionOwnerId) })) {
+      for (const cache of queryClient
+        .getQueryCache()
+        .findAll({ queryKey: ownerNotificationPrefix(actionOwnerId) })) {
         const cacheFilter = notificationFilters.find((value) => value === cache.queryKey[2]);
         queryClient.setQueryData(cache.queryKey, (current: unknown) => {
-          return updateNotificationPages(current as undefined | { pages: NotificationListResponse[]; pageParams: unknown[] }, (item) => {
-            if (notificationIsArchived(item)) return item;
-            const next = { ...item, read: true, readAt: item.readAt ?? readAt };
-            return cacheFilter && !notificationMatchesFilter(next, cacheFilter) ? null : next;
-          });
+          return updateNotificationPages(
+            current as undefined | { pages: NotificationListResponse[]; pageParams: unknown[] },
+            (item) => {
+              if (notificationIsArchived(item)) return item;
+              const next = { ...item, read: true, readAt: item.readAt ?? readAt };
+              return cacheFilter && !notificationMatchesFilter(next, cacheFilter) ? null : next;
+            }
+          );
         });
       }
     },
@@ -166,10 +190,14 @@ export function NotificationsScreen() {
     }
   });
   const archive = useMutation({
-    mutationFn: ({ id, archived }: { id: string; archived: boolean; ownerId: string }) => workflowApi.notifications.setArchived(id, archived),
+    mutationFn: ({ id, archived }: { id: string; archived: boolean; ownerId: string }) =>
+      workflowApi.notifications.setArchived(id, archived),
     onMutate: async ({ id, archived, ownerId: actionOwnerId }) => {
       await queryClient.cancelQueries({ queryKey: ownerNotificationPrefix(actionOwnerId) });
-      updateNotification(actionOwnerId, id, { archived, archivedAt: archived ? new Date().toISOString() : undefined });
+      updateNotification(actionOwnerId, id, {
+        archived,
+        archivedAt: archived ? new Date().toISOString() : undefined
+      });
     },
     onSuccess: (item, variables) => {
       updateNotification(variables.ownerId, item.id, item);
@@ -182,7 +210,14 @@ export function NotificationsScreen() {
     }
   });
   const download = useMutation({
-    mutationFn: async ({ fileId, filename }: { fileId: string; filename: string; notificationId: string }) => {
+    mutationFn: async ({
+      fileId,
+      filename
+    }: {
+      fileId: string;
+      filename: string;
+      notificationId: string;
+    }) => {
       await downloadStoredFile(fileId, filename);
     },
     onError: (error) => toast.error(error.message)
@@ -194,15 +229,31 @@ export function NotificationsScreen() {
       description={text.description}
       artwork="workflow"
       action={
-        <Button variant="outline" onClick={() => markAll.mutate({ ownerId })} loading={markAll.isPending} disabled={!counts.unread}>
+        <Button
+          variant="outline"
+          onClick={() => markAll.mutate({ ownerId })}
+          loading={markAll.isPending}
+          disabled={!counts.unread}
+        >
           <CheckCheck className="size-4" aria-hidden />
           {text.markAllRead}
         </Button>
       }
     >
-      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label={text.title}>
+      <div
+        className={`${workflowPanelClass} mb-4 flex flex-wrap gap-2`}
+        role="group"
+        aria-label={text.title}
+      >
         {notificationFilters.map((value) => (
-          <Button key={value} type="button" variant={filter === value ? "secondary" : "outline"} size="sm" aria-pressed={filter === value} onClick={() => setFilter(value)}>
+          <Button
+            key={value}
+            type="button"
+            variant={filter === value ? "secondary" : "outline"}
+            size="sm"
+            aria-pressed={filter === value}
+            onClick={() => setFilter(value)}
+          >
             {notificationFilterLabels[locale][value]}
             <span className="text-xs text-muted-foreground">{counts[value]}</span>
           </Button>
@@ -214,18 +265,26 @@ export function NotificationsScreen() {
         isEmpty={!items.length}
         emptyTitle={ownerHistoryTotal ? text.filteredEmptyTitle : text.emptyTitle}
         emptyDescription={ownerHistoryTotal ? text.filteredEmptyDescription : text.emptyDescription}
-        onRetry={() => { void query.refetch(); }}
+        onRetry={() => {
+          void query.refetch();
+        }}
       >
         <div className="space-y-2">
-          <p role="status" className="text-sm text-muted-foreground">{text.shown(items.length, total)}</p>
+          <p role="status" className="text-sm text-muted-foreground">
+            {text.shown(items.length, total)}
+          </p>
           {items.map((item) => (
             <NotificationRow
               key={item.id}
               item={item}
               locale={locale}
-              onOpen={() => { if (!notificationIsRead(item)) markRead.mutate({ id: item.id, ownerId }); }}
+              onOpen={() => {
+                if (!notificationIsRead(item)) markRead.mutate({ id: item.id, ownerId });
+              }}
               onMarkRead={() => markRead.mutate({ id: item.id, ownerId })}
-              onArchive={() => archive.mutate({ id: item.id, archived: !notificationIsArchived(item), ownerId })}
+              onArchive={() =>
+                archive.mutate({ id: item.id, archived: !notificationIsArchived(item), ownerId })
+              }
               onDownload={(file) => download.mutate({ ...file, notificationId: item.id })}
               isReading={markRead.isPending && markRead.variables?.id === item.id}
               isArchiving={archive.isPending && archive.variables?.id === item.id}
@@ -239,7 +298,11 @@ export function NotificationsScreen() {
           ) : null}
           {query.hasNextPage ? (
             <div className="flex justify-center pt-2">
-              <Button variant="outline" onClick={() => query.fetchNextPage()} loading={query.isFetchingNextPage}>
+              <Button
+                variant="outline"
+                onClick={() => query.fetchNextPage()}
+                loading={query.isFetchingNextPage}
+              >
                 {text.loadMore}
               </Button>
             </div>
@@ -280,7 +343,9 @@ function NotificationRow({
   const title = notificationTitle(item, locale);
 
   return (
-    <article className="rounded-lg border bg-card p-[var(--card-padding)] transition hover:border-primary/45 focus-within:border-primary/45">
+    <article
+      className={`${workflowPanelClass} transition hover:border-primary/45 hover:bg-muted/25 focus-within:border-primary/45`}
+    >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 w-full sm:flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -289,7 +354,9 @@ function NotificationRow({
             {archived ? <Badge intent="warning">{text.archived}</Badge> : null}
             <Badge>{notificationKindLabels[locale][kind]}</Badge>
           </div>
-          <p className="mt-1 break-words text-sm text-muted-foreground">{item.body || text.noBody}</p>
+          <p className="mt-1 break-words text-sm text-muted-foreground">
+            {item.body || text.noBody}
+          </p>
           <p className="mt-2 text-xs text-muted-foreground">
             {formatRelativeTime(item.createdAt, locale)} · {notificationKindLabels[locale][kind]}
           </p>
@@ -304,7 +371,12 @@ function NotificationRow({
             </Button>
           ) : null}
           {file ? (
-            <Button size="sm" variant="outline" loading={isDownloading} onClick={() => onDownload(file)}>
+            <Button
+              size="sm"
+              variant="outline"
+              loading={isDownloading}
+              onClick={() => onDownload(file)}
+            >
               <Download className="size-4" aria-hidden />
               {text.download}
             </Button>
@@ -315,8 +387,18 @@ function NotificationRow({
               {text.markRead}
             </Button>
           ) : null}
-          <Button size="sm" variant="ghost" loading={isArchiving} aria-label={archived ? text.restore : text.archive} onClick={onArchive}>
-            {archived ? <RotateCcw className="size-4" aria-hidden /> : <Archive className="size-4" aria-hidden />}
+          <Button
+            size="sm"
+            variant="ghost"
+            loading={isArchiving}
+            aria-label={archived ? text.restore : text.archive}
+            onClick={onArchive}
+          >
+            {archived ? (
+              <RotateCcw className="size-4" aria-hidden />
+            ) : (
+              <Archive className="size-4" aria-hidden />
+            )}
             {archived ? text.restore : text.archive}
           </Button>
         </div>

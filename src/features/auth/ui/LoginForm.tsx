@@ -23,16 +23,28 @@ export function LoginForm() {
   const error = loginMutation.error;
 
   return (
-    <form className="space-y-4" onSubmit={form.handleSubmit((values) => loginMutation.mutate(values))}>
+    <form
+      className="space-y-4"
+      onSubmit={form.handleSubmit((values) => loginMutation.mutate(values))}
+    >
       {error ? (
         <ErrorState
-          title="Вход не выполнен"
-          message={error instanceof ApiError ? error.message : "Проверьте данные и повторите попытку."}
+          title="Не удалось войти"
+          message={
+            error instanceof ApiError
+              ? error.message
+              : "Проверьте email и пароль, затем попробуйте ещё раз."
+          }
         />
       ) : null}
       <label className="block space-y-1.5 text-sm">
         <span className="font-medium">Email</span>
-        <Input autoComplete="username" type="email" {...form.register("email")} />
+        <Input
+          autoComplete="username"
+          type="email"
+          placeholder="name@company.com"
+          {...form.register("email")}
+        />
         {form.formState.errors.email ? (
           <span className="text-xs text-destructive">{form.formState.errors.email.message}</span>
         ) : null}
@@ -43,6 +55,7 @@ export function LoginForm() {
           <Input
             autoComplete="current-password"
             type={showPassword ? "text" : "password"}
+            placeholder="Ваш пароль"
             {...form.register("password")}
           />
           <Button
@@ -60,11 +73,11 @@ export function LoginForm() {
         ) : null}
       </label>
       <Button type="submit" className="w-full" loading={loginMutation.isPending}>
-        Войти
+        Продолжить
       </Button>
       <div className="text-center text-sm">
         <Link href="/forgot-password" className="text-primary hover:underline">
-          Забыли пароль?
+          Не помните пароль?
         </Link>
       </div>
     </form>

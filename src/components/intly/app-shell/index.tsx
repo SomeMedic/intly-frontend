@@ -110,7 +110,9 @@ const mobileNav = [
   { href: "/tasks", labelKey: "tasks", icon: ListChecks },
   { href: "/notifications", labelKey: "notifications", icon: Bell },
   { labelKey: "more", icon: Menu, more: true }
-] satisfies Array<NavItem | { labelKey: "more"; icon: ComponentType<{ className?: string }>; more: true }>;
+] satisfies Array<
+  NavItem | { labelKey: "more"; icon: ComponentType<{ className?: string }>; more: true }
+>;
 
 const shellCopy = {
   ru: {
@@ -118,15 +120,15 @@ const shellCopy = {
       discovery: "Поиск",
       work: "Работа",
       analytics: "Аналитика",
-      profile: "Профиль"
+      profile: "Материалы"
     } satisfies Record<NavGroupKey, string>,
     nav: {
-      dashboard: "Сводка",
+      dashboard: "Обзор",
       opportunities: "Возможности",
-      watchlists: "Правила",
-      savedViews: "Сохранённые виды",
+      watchlists: "Автопоиск",
+      savedViews: "Сохранённые поиски",
       search: "Поиск",
-      pipelines: "Воронки",
+      pipelines: "Отклики",
       tasks: "Задачи",
       calendar: "Календарь",
       analyticsPersonal: "Личная",
@@ -136,20 +138,20 @@ const shellCopy = {
       knowledge: "База знаний",
       notifications: "Уведомления",
       settings: "Настройки",
-      admin: "Админка"
+      admin: "Администрирование"
     } satisfies Record<NavKey, string>,
     mobile: {
-      opportunities: "Подборки",
-      notifications: "Сигналы",
+      opportunities: "Лента",
+      notifications: "Входящие",
       more: "Ещё"
     },
-    add: "Добавить",
+    add: "Новая возможность",
     notifications: "Уведомления",
     unread: "Непрочитанных",
     collapseMenu: "Свернуть меню",
     expandMenu: "Развернуть меню",
-    fullMenu: "Полное меню",
-    fullMenuDescription: "Все разделы и настройки INTLY",
+    fullMenu: "Разделы",
+    fullMenuDescription: "Навигация, профиль и внешний вид",
     close: "Закрыть",
     appearance: "Внешний вид",
     profileAttention: "Профиль требует внимания",
@@ -166,15 +168,15 @@ const shellCopy = {
       discovery: "Search",
       work: "Work",
       analytics: "Analytics",
-      profile: "Profile"
+      profile: "Materials"
     } satisfies Record<NavGroupKey, string>,
     nav: {
-      dashboard: "Dashboard",
+      dashboard: "Overview",
       opportunities: "Opportunities",
-      watchlists: "Watchlists",
-      savedViews: "Saved views",
+      watchlists: "Autosearch",
+      savedViews: "Saved searches",
       search: "Search",
-      pipelines: "Pipelines",
+      pipelines: "Responses",
       tasks: "Tasks",
       calendar: "Calendar",
       analyticsPersonal: "Personal",
@@ -184,20 +186,20 @@ const shellCopy = {
       knowledge: "Knowledge",
       notifications: "Notifications",
       settings: "Settings",
-      admin: "Admin"
+      admin: "Administration"
     } satisfies Record<NavKey, string>,
     mobile: {
-      opportunities: "Leads",
-      notifications: "Signals",
+      opportunities: "Browse",
+      notifications: "Inbox",
       more: "More"
     },
-    add: "Add",
+    add: "New opportunity",
     notifications: "Notifications",
     unread: "Unread",
     collapseMenu: "Collapse menu",
     expandMenu: "Expand menu",
-    fullMenu: "Full menu",
-    fullMenuDescription: "All INTLY sections and settings",
+    fullMenu: "Sections",
+    fullMenuDescription: "Navigation, profile, and appearance",
     close: "Close",
     appearance: "Appearance",
     profileAttention: "Profile needs attention",
@@ -239,27 +241,31 @@ export function AppShell({
   });
   const shellProfiles = profiles ?? dashboard.data?.profiles ?? [];
   const shellActiveProfile = activeProfile ?? dashboard.data?.activeProfile ?? null;
-  const shellHealth = health ?? dashboard.data?.systemHealth ?? {
-    status: "unknown",
-    label: text.healthUnknown,
-    activeSources: 0,
-    failedSources: 0
-  } satisfies SystemHealth;
+  const shellHealth =
+    health ??
+    dashboard.data?.systemHealth ??
+    ({
+      status: "unknown",
+      label: text.healthUnknown,
+      activeSources: 0,
+      failedSources: 0
+    } satisfies SystemHealth);
   const shellUnreadNotifications = unreadNotifications ?? dashboard.data?.notificationsUnread ?? 0;
-  const notificationsLabel = shellUnreadNotifications > 0
-    ? `${text.notifications}, ${text.unread.toLowerCase()}: ${shellUnreadNotifications.toLocaleString(locale === "ru" ? "ru-RU" : "en-US")}`
-    : text.notifications;
+  const notificationsLabel =
+    shellUnreadNotifications > 0
+      ? `${text.notifications}, ${text.unread.toLowerCase()}: ${shellUnreadNotifications.toLocaleString(locale === "ru" ? "ru-RU" : "en-US")}`
+      : text.notifications;
   const { sidebarCollapsed, setSidebarCollapsed } = useUiPreferences();
 
   return (
-    <div className="flex min-h-screen overflow-x-clip">
+    <div className="flex min-h-screen overflow-x-clip bg-background text-foreground">
       <aside
         className={cn(
-          "sticky top-0 hidden h-screen shrink-0 border-r bg-card/80 backdrop-blur xl:flex xl:flex-col",
-          sidebarCollapsed ? "w-[4.5rem]" : "w-72"
+          "sticky top-0 hidden h-screen shrink-0 border-r bg-[hsl(var(--sidebar))] backdrop-blur-xl xl:flex xl:flex-col",
+          sidebarCollapsed ? "w-[4.5rem]" : "w-[14.5rem]"
         )}
       >
-        <div className="flex h-16 items-center justify-between border-b px-3">
+        <div className="flex h-14 items-center justify-between border-b px-3">
           <Link href="/dashboard" className="flex min-w-0 items-center gap-2 font-semibold">
             <BrandMark wordmark={!sidebarCollapsed} />
           </Link>
@@ -269,14 +275,20 @@ export function AppShell({
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
             aria-label={sidebarCollapsed ? text.expandMenu : text.collapseMenu}
           >
-            {sidebarCollapsed ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
+            {sidebarCollapsed ? (
+              <ChevronRight className="size-4" />
+            ) : (
+              <ChevronLeft className="size-4" />
+            )}
           </Button>
         </div>
         <nav className="flex-1 overflow-y-auto px-2 py-3">
           {navGroups.map((group) => (
             <div key={group.labelKey} className="mb-4">
               {!sidebarCollapsed ? (
-                <p className="mb-1 px-2 text-[0.68rem] font-semibold uppercase text-muted-foreground">{text.groups[group.labelKey]}</p>
+                <p className="mb-1.5 px-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                  {text.groups[group.labelKey]}
+                </p>
               ) : null}
               <div className="space-y-1">
                 {group.items
@@ -289,8 +301,9 @@ export function AppShell({
                         key={item.href}
                         href={item.href}
                         className={cn(
-                          "flex h-9 items-center gap-2 rounded-md px-2 text-sm transition hover:bg-muted",
-                          active && "border border-primary/35 bg-primary/10 text-primary",
+                          "flex h-8 items-center gap-2 rounded-md px-2 text-[0.8125rem] font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground",
+                          active &&
+                            "bg-primary/10 text-primary shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.28)]",
                           sidebarCollapsed && "justify-center"
                         )}
                       >
@@ -305,9 +318,11 @@ export function AppShell({
         </nav>
         <div className="space-y-2 border-t p-3">
           {shellActiveProfile?.needsAttention?.length && !sidebarCollapsed ? (
-            <div className="rounded-md border border-warning/40 bg-warning/10 p-3 text-xs">
+            <div className="rounded-md border border-warning/30 bg-warning/10 p-3 text-xs">
               <p className="font-semibold text-warning">{text.profileAttention}</p>
-              <p className="mt-1 text-muted-foreground">{shellActiveProfile.needsAttention[0]?.label}</p>
+              <p className="mt-1 text-muted-foreground">
+                {shellActiveProfile.needsAttention[0]?.label}
+              </p>
             </div>
           ) : null}
           {!sidebarCollapsed ? <HealthIndicator health={shellHealth} compact /> : null}
@@ -315,22 +330,31 @@ export function AppShell({
       </aside>
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-40 flex h-16 max-w-full items-center gap-2 overflow-visible border-b bg-background/80 px-2 backdrop-blur sm:gap-3 md:px-5">
+        <header className="sticky top-0 z-40 flex h-14 max-w-full items-center gap-2 overflow-visible border-b bg-background/88 px-2 backdrop-blur-xl sm:gap-3 md:px-5">
           <GlobalSearch />
           <div className="hidden min-w-0 max-w-72 flex-1 lg:block 2xl:flex-none">
             <ProfileSelector profile={shellActiveProfile} profiles={shellProfiles} />
           </div>
-          <Button variant="outline" className="shrink-0 px-2 sm:px-3.5" asChild>
+          <Button variant="outline" className="shrink-0 px-2 sm:px-3" asChild>
             <Link href="/opportunities?add=true">
               <Plus className="size-4" />
               <span className="hidden sm:inline">{text.add}</span>
             </Link>
           </Button>
-          <Button size="icon" variant="outline" aria-label={notificationsLabel} className="relative shrink-0" asChild>
+          <Button
+            size="icon"
+            variant="outline"
+            aria-label={notificationsLabel}
+            className="relative shrink-0"
+            asChild
+          >
             <Link href="/notifications" title={notificationsLabel}>
               <Bell className="size-4" />
               {shellUnreadNotifications > 0 ? (
-                <span aria-hidden="true" className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[0.62rem] tabular-nums text-destructive-foreground">
+                <span
+                  aria-hidden="true"
+                  className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[0.62rem] tabular-nums text-destructive-foreground"
+                >
                   {shellUnreadNotifications > 99 ? "99+" : shellUnreadNotifications}
                 </span>
               ) : null}
@@ -339,35 +363,52 @@ export function AppShell({
           <div className="hidden shrink-0 md:block">
             <ThemeControls />
           </div>
-          <AccountMenu user={user} text={text.account} open={accountMenuOpen} onOpenChange={setAccountMenuOpen} onLogout={logout} />
+          <AccountMenu
+            user={user}
+            text={text.account}
+            open={accountMenuOpen}
+            onOpenChange={setAccountMenuOpen}
+            onLogout={logout}
+          />
         </header>
         <main className="px-3 pb-24 pt-5 md:px-6 xl:pb-5">{children}</main>
       </div>
       {mobileMenuOpen ? (
-        <div id="mobile-full-menu" className="fixed inset-x-2 bottom-16 z-50 max-h-[70vh] overflow-y-auto rounded-xl border bg-card/98 p-3 shadow-lg backdrop-blur xl:hidden">
+        <div
+          id="mobile-full-menu"
+          className="fixed inset-x-2 bottom-16 z-50 max-h-[70vh] overflow-y-auto rounded-lg border bg-card/98 p-3 shadow-floating backdrop-blur xl:hidden"
+        >
           <div className="mb-3 flex items-center justify-between gap-2">
             <div>
               <p className="text-sm font-semibold">{text.fullMenu}</p>
               <p className="text-xs text-muted-foreground">{text.fullMenuDescription}</p>
             </div>
-            <Button size="sm" variant="outline" onClick={() => setMobileMenuOpen(false)}>{text.close}</Button>
+            <Button size="sm" variant="outline" onClick={() => setMobileMenuOpen(false)}>
+              {text.close}
+            </Button>
           </div>
           <div className="md:hidden">
             <ProfileSelector profile={shellActiveProfile} profiles={shellProfiles} />
           </div>
-          <section className="mt-3 rounded-lg border bg-background/70 p-2 md:hidden">
-            <p className="px-2 py-1 text-[0.68rem] font-semibold uppercase text-muted-foreground">{text.appearance}</p>
+          <section className="mt-3 rounded-md border bg-background/70 p-2 md:hidden">
+            <p className="px-2 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              {text.appearance}
+            </p>
             <div className="px-1 py-2">
               <ThemeControls />
             </div>
           </section>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {navGroups.map((group) => {
-              const visibleItems = group.items.filter((item) => !item.adminOnly || user?.role === "Admin");
+              const visibleItems = group.items.filter(
+                (item) => !item.adminOnly || user?.role === "Admin"
+              );
               if (!visibleItems.length) return null;
               return (
-                <section key={group.labelKey} className="rounded-lg border bg-background/70 p-2">
-                  <p className="px-2 py-1 text-[0.68rem] font-semibold uppercase text-muted-foreground">{text.groups[group.labelKey]}</p>
+                <section key={group.labelKey} className="rounded-md border bg-background/70 p-2">
+                  <p className="px-2 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                    {text.groups[group.labelKey]}
+                  </p>
                   <div className="grid gap-1">
                     {visibleItems.map((item) => {
                       const Icon = item.icon;
@@ -378,8 +419,9 @@ export function AppShell({
                           href={item.href}
                           onClick={() => setMobileMenuOpen(false)}
                           className={cn(
-                            "flex items-center gap-2 rounded-md px-2 py-2 text-sm transition hover:bg-muted",
-                            active && "border border-primary/35 bg-primary/10 text-primary"
+                            "flex items-center gap-2 rounded-md px-2 py-2 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground",
+                            active &&
+                              "bg-primary/10 text-primary shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.28)]"
                           )}
                         >
                           <Icon className="size-4" />
@@ -397,7 +439,7 @@ export function AppShell({
           </div>
         </div>
       ) : null}
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card/95 px-1 py-1 backdrop-blur xl:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-card/95 px-1 py-1 backdrop-blur-xl xl:hidden">
         {mobileNav.map((item) => {
           const Icon = item.icon;
           if ("more" in item) {
@@ -407,7 +449,7 @@ export function AppShell({
                 type="button"
                 onClick={() => setMobileMenuOpen((open) => !open)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 rounded-md px-1 py-2 text-[0.68rem] text-muted-foreground",
+                  "flex flex-col items-center justify-center gap-0.5 rounded-md px-1 py-2 text-xs font-medium text-muted-foreground",
                   mobileMenuOpen && "bg-primary/10 text-primary"
                 )}
                 aria-expanded={mobileMenuOpen}
@@ -419,19 +461,25 @@ export function AppShell({
             );
           }
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-          const label = item.labelKey === "opportunities" ? text.mobile.opportunities : item.labelKey === "notifications" ? text.mobile.notifications : text.nav[item.labelKey];
+          const label =
+            item.labelKey === "opportunities"
+              ? text.mobile.opportunities
+              : item.labelKey === "notifications"
+                ? text.mobile.notifications
+                : text.nav[item.labelKey];
           return (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => setMobileMenuOpen(false)}
+              aria-label={text.nav[item.labelKey]}
               className={cn(
-                "flex flex-col items-center justify-center gap-0.5 rounded-md px-1 py-2 text-[0.68rem] text-muted-foreground",
+                "flex flex-col items-center justify-center gap-0.5 rounded-md px-1 py-2 text-xs font-medium text-muted-foreground",
                 active && "bg-primary/10 text-primary"
               )}
             >
               <Icon className="size-4" />
-              <span>{label}</span>
+              <span className="max-w-full truncate">{label}</span>
             </Link>
           );
         })}
@@ -466,16 +514,25 @@ function AccountMenu({
         aria-controls="account-menu"
         onClick={() => onOpenChange(!open)}
       >
-        <span className="grid size-7 shrink-0 place-items-center rounded-full border bg-muted text-xs font-semibold text-muted-foreground" aria-hidden>
+        <span
+          className="grid size-7 shrink-0 place-items-center rounded-full border bg-muted text-xs font-semibold text-muted-foreground"
+          aria-hidden
+        >
           {initial}
         </span>
         <span className="hidden min-w-0 truncate sm:inline">{name}</span>
       </Button>
       {open ? (
-        <div id="account-menu" className="absolute right-0 top-11 z-50 w-[min(18rem,calc(100vw-1rem))] rounded-lg border bg-card p-2 shadow-floating" role="menu">
+        <div
+          id="account-menu"
+          className="absolute right-0 top-11 z-50 w-[min(18rem,calc(100vw-1rem))] rounded-lg border bg-card p-2 shadow-floating"
+          role="menu"
+        >
           <div className="border-b px-2 pb-2 pt-1">
             <p className="truncate text-sm font-semibold">{name}</p>
-            {user?.email ? <p className="mt-0.5 truncate text-xs text-muted-foreground">{user.email}</p> : null}
+            {user?.email ? (
+              <p className="mt-0.5 truncate text-xs text-muted-foreground">{user.email}</p>
+            ) : null}
           </div>
           <div className="mt-2 grid gap-1">
             <Link

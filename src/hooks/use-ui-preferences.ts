@@ -18,16 +18,36 @@ type UiPreferences = {
   setMode: (mode: ThemeMode) => void;
   setDensity: (density: Density) => void;
   setReducedMotion: (reducedMotion: boolean) => void;
-  setAppearance: (appearance: Partial<Pick<UiPreferences, "themePack" | "mode" | "density" | "reducedMotion">>) => void;
+  setAppearance: (
+    appearance: Partial<Pick<UiPreferences, "themePack" | "mode" | "density" | "reducedMotion">>
+  ) => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
   setSearchOpen: (open: boolean) => void;
 };
 
-export const themePacks: Array<{ id: ThemePack; label: string; swatch: string; accent: string }> = [
-  { id: "intly-plum", label: "Plum", swatch: "hsl(268 58% 42%)", accent: "hsl(184 70% 38%)" },
-  { id: "forest-teal", label: "Forest", swatch: "hsl(164 58% 28%)", accent: "hsl(38 78% 48%)" },
-  { id: "warm-clay", label: "Clay", swatch: "hsl(18 58% 43%)", accent: "hsl(210 48% 38%)" },
-  { id: "graphite-copper", label: "Copper", swatch: "hsl(24 74% 45%)", accent: "hsl(210 11% 18%)" }
+export const themePacks: Array<{
+  id: ThemePack;
+  label: string;
+  labelEn: string;
+  swatch: string;
+  accent: string;
+}> = [
+  { id: "intly-plum", label: "Индиго", labelEn: "Indigo", swatch: "#5e6ad2", accent: "#8fa6ff" },
+  { id: "forest-teal", label: "Шалфей", labelEn: "Sage", swatch: "#2b6a55", accent: "#8bcbb6" },
+  {
+    id: "warm-clay",
+    label: "Терракота",
+    labelEn: "Terracotta",
+    swatch: "#8b5a3c",
+    accent: "#e8b894"
+  },
+  {
+    id: "graphite-copper",
+    label: "Графит",
+    labelEn: "Graphite",
+    swatch: "#444950",
+    accent: "#e2e4e7"
+  }
 ];
 
 export const defaultAppearance = {

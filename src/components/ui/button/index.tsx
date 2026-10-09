@@ -5,20 +5,22 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const buttonVariants = cva(
-  "inline-flex h-[var(--control-height)] items-center justify-center gap-2 rounded-md border text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-55",
+  "inline-flex h-[var(--control-height)] items-center justify-center gap-2 rounded-md border text-[0.8125rem] font-medium transition active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
   {
     variants: {
       variant: {
-        primary: "border-primary bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+        primary: "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
         secondary: "border-border bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "border-transparent bg-transparent hover:bg-muted",
-        outline: "border-border bg-card hover:border-primary/60 hover:bg-muted/60",
-        danger: "border-destructive bg-destructive text-destructive-foreground hover:bg-destructive/90"
+        ghost:
+          "border-transparent bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground",
+        outline: "border-border bg-card hover:border-muted-foreground/40 hover:bg-muted/60",
+        danger:
+          "border-destructive bg-destructive text-destructive-foreground hover:bg-destructive/90"
       },
       size: {
         sm: "h-8 px-2.5 text-xs",
         md: "px-3.5",
-        lg: "h-11 px-5",
+        lg: "h-10 px-4",
         icon: "size-[var(--control-height)] px-0"
       }
     },
@@ -45,6 +47,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           ref={ref}
           className={cn(buttonVariants({ variant, size }), className)}
           aria-disabled={disabled || loading}
+          aria-busy={loading || undefined}
           {...props}
         >
           {children}
@@ -57,6 +60,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={cn(buttonVariants({ variant, size }), className)}
         disabled={disabled || loading}
+        aria-busy={loading || undefined}
         {...props}
       >
         {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}

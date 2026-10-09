@@ -26,7 +26,7 @@ type Column = keyof typeof tableColumns;
 
 const tableCopy = {
   ru: {
-    widthHint: "Ширину столбцов можно менять за правый край заголовка.",
+    widthHint: "Настройте ширину столбцов прямо в заголовке.",
     columnsButton: "Столбцы",
     tableAria: "Возможности",
     selectColumn: "Выбор",
@@ -46,10 +46,11 @@ const tableCopy = {
     notSetFeminine: "Не указана",
     notSetMasculine: "Не указан",
     notSetPlural: "Не указаны",
-    favorite: (title: string, favorite: boolean) => `${favorite ? "Убрать из избранного" : "В избранное"}: ${title}`,
+    favorite: (title: string, favorite: boolean) =>
+      `${favorite ? "Убрать из избранного" : "В избранное"}: ${title}`,
     columnsTitle: "Столбцы списка",
     columnsDescription:
-      "Название и личные действия видны всегда. Выбранные столбцы сохраняются вместе с представлением.",
+      "Название и личные действия видны всегда. Набор столбцов сохраняется в ссылке и сохранённом поиске.",
     done: "Готово",
     defaultSet: "Стандартный набор",
     relativeLocale: "ru"
@@ -75,10 +76,11 @@ const tableCopy = {
     notSetFeminine: "Not specified",
     notSetMasculine: "Not specified",
     notSetPlural: "Not specified",
-    favorite: (title: string, favorite: boolean) => `${favorite ? "Remove from favorites" : "Add to favorites"}: ${title}`,
+    favorite: (title: string, favorite: boolean) =>
+      `${favorite ? "Remove from favorites" : "Add to favorites"}: ${title}`,
     columnsTitle: "List columns",
     columnsDescription:
-      "Title and personal actions are always visible. Selected columns are saved with the view.",
+      "Title and personal actions are always visible. Columns are saved in the link and saved search.",
     done: "Done",
     defaultSet: "Default set",
     relativeLocale: "en"
@@ -208,7 +210,7 @@ export function OpportunityTable({
   const heading = (key: string, label: string) => (
     <div
       role="columnheader"
-      className={`relative flex items-center px-3 py-3 ${key === "title" ? "sticky left-12 z-10 bg-muted" : ""}`}
+      className={`relative flex items-center px-3 py-3 ${key === "title" ? "sticky left-12 z-10 bg-muted/90" : ""}`}
       key={key}
     >
       <span>{label}</span>
@@ -254,7 +256,7 @@ export function OpportunityTable({
       </div>
       <div
         ref={parent}
-        className="max-h-[65vh] overflow-auto rounded-xl border bg-card"
+        className="intly-table-wrap max-h-[65vh] overflow-auto"
         style={{ height: Math.min(650, 47 + items.length * (mode === "list" ? 106 : 84)) }}
         role="table"
         aria-label={copy.tableAria}
@@ -263,7 +265,7 @@ export function OpportunityTable({
       >
         <div
           role="rowgroup"
-          className="sticky top-0 z-20 bg-muted"
+          className="sticky top-0 z-20 bg-muted/90 backdrop-blur"
           style={{ minWidth: minimumWidth }}
         >
           <div
@@ -271,7 +273,7 @@ export function OpportunityTable({
             className="grid border-b text-xs font-medium text-muted-foreground"
             style={{ gridTemplateColumns: template }}
           >
-            <div role="columnheader" className="sticky left-0 z-10 bg-muted">
+            <div role="columnheader" className="sticky left-0 z-10 bg-muted/90">
               <span className="sr-only">{copy.selectColumn}</span>
             </div>
             {heading("title", copy.titleColumn)}
@@ -296,7 +298,7 @@ export function OpportunityTable({
                 key={row.key}
                 data-index={row.index}
                 ref={virtualizer.measureElement}
-                className="group absolute left-0 top-0 grid w-full border-b bg-card text-sm hover:bg-muted/40"
+                className="group absolute left-0 top-0 grid w-full border-b border-border/60 bg-card/95 text-sm hover:bg-muted/30"
                 style={{
                   gridTemplateColumns: template,
                   transform: `translateY(${row.start}px)`,
@@ -305,7 +307,7 @@ export function OpportunityTable({
               >
                 <div
                   role="cell"
-                  className="sticky left-0 z-10 flex items-start justify-center bg-card pt-5 group-hover:bg-muted"
+                  className="sticky left-0 z-10 flex items-start justify-center bg-card/95 pt-5 group-hover:bg-muted/90"
                 >
                   <input
                     type="checkbox"
@@ -316,7 +318,7 @@ export function OpportunityTable({
                 </div>
                 <div
                   role="cell"
-                  className="sticky left-12 z-10 min-w-0 bg-card px-3 py-3 group-hover:bg-muted"
+                  className="sticky left-12 z-10 min-w-0 bg-card/95 px-3 py-3 group-hover:bg-muted/90"
                 >
                   <button
                     className="line-clamp-2 text-left font-medium hover:text-primary"
@@ -325,7 +327,8 @@ export function OpportunityTable({
                     {item.title}
                   </button>
                   <p className="mt-1 truncate text-xs text-muted-foreground">
-                    {item.companyOrClient || copy.unknownCompany} · {mini.placeLabel || copy.unknownFormat}
+                    {item.companyOrClient || copy.unknownCompany} ·{" "}
+                    {mini.placeLabel || copy.unknownFormat}
                   </p>
                   {mode === "list" && (
                     <div className="mt-2 flex gap-1 overflow-hidden">
@@ -340,7 +343,10 @@ export function OpportunityTable({
                     {key === "money" ? (
                       moneyLabel(item.money, locale)
                     ) : key === "match" ? (
-                      <MatchScore value={mini.matchScore} label="Match" />
+                      <MatchScore
+                        value={mini.matchScore}
+                        label={locale === "ru" ? "Подходит" : "Fit"}
+                      />
                     ) : key === "ai" ? (
                       <MatchScore value={item.aiScore ?? null} label="AI" />
                     ) : key === "source" ? (

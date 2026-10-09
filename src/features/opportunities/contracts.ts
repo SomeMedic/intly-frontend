@@ -89,7 +89,13 @@ export type OpportunityRecord = {
   location?: string;
   remoteType?: string;
   employmentType?: string;
-  money: { originalText?: string; min?: number | null; max?: number | null; currency?: string; period?: string };
+  money: {
+    originalText?: string;
+    min?: number | null;
+    max?: number | null;
+    currency?: string;
+    period?: string;
+  };
   sourceStatus: SourceStatus;
   sourceOccurrences: SourceOccurrenceRecord[];
   firstSeenAt: string;
@@ -126,14 +132,14 @@ export type AiRun = {
   errorSummary?: string;
   structuredOutput?: Record<string, unknown>;
 };
-export const typeLabels = { vacancy: "Вакансии", freelance: "Фриланс", tender: "Тендеры" };
+export const typeLabels = { vacancy: "Вакансии", freelance: "Проекты", tender: "Тендеры" };
 export const stageLabels: Record<PipelineStage, string> = pipelineStageLabels.ru;
 export const stageLabelsByLocale = pipelineStageLabels;
 
 export const tableColumns = {
   money: "Оплата",
-  match: "Match",
-  ai: "AI Score",
+  match: "Соответствие",
+  ai: "Оценка AI",
   source: "Источники",
   status: "Этап",
   firstSeen: "Добавлена",
@@ -146,8 +152,8 @@ export const tableColumnsByLocale = {
   ru: tableColumns,
   en: {
     money: "Pay",
-    match: "Match",
-    ai: "AI Score",
+    match: "Соответствие",
+    ai: "Оценка AI",
     source: "Sources",
     status: "Stage",
     firstSeen: "Added",
@@ -175,9 +181,12 @@ const currencyLabels: Record<"ru" | "en", Record<string, string>> = {
   en: { RUB: "RUB", RUR: "RUB", USD: "USD", EUR: "EUR", GBP: "GBP", KZT: "KZT" }
 };
 
-const machineMoneyTextPattern = /^\s*\d[\d\s.,]*(?:\s*[–-]\s*\d[\d\s.,]*)?(?:\s+(?:RUR|RUB|USD|EUR|GBP|KZT|₽|\$|€|£|₸))?(?:\s+(?:HOUR|DAY|WEEK|MONTH|YEAR|PROJECT|hour|day|week|month|year|project))?\s*$/;
-const boundedMachineMoneyTextPattern = /^\s*(?:от\s+\d[\d\s.,]*(?:\s+до\s+\d[\d\s.,]*)?|до\s+\d[\d\s.,]*)(?:\s+(?:RUR|RUB|USD|EUR|GBP|KZT|₽|\$|€|£|₸))?\s*$/;
-const workdayBasePayRangeTextPattern = /^\s*(?:primary\s+location\s+)?base\s+pay\s+range\s*:\s*(?:[$€£₽₸]\s*)?\d[\d\s.,]*(?:\s*(?:RUR|RUB|USD|EUR|GBP|KZT))?(?:\s*[–-]\s*(?:[$€£₽₸]\s*)?\d[\d\s.,]*(?:\s*(?:RUR|RUB|USD|EUR|GBP|KZT))?)?\s*$/i;
+const machineMoneyTextPattern =
+  /^\s*\d[\d\s.,]*(?:\s*[–-]\s*\d[\d\s.,]*)?(?:\s+(?:RUR|RUB|USD|EUR|GBP|KZT|₽|\$|€|£|₸))?(?:\s+(?:HOUR|DAY|WEEK|MONTH|YEAR|PROJECT|hour|day|week|month|year|project))?\s*$/;
+const boundedMachineMoneyTextPattern =
+  /^\s*(?:от\s+\d[\d\s.,]*(?:\s+до\s+\d[\d\s.,]*)?|до\s+\d[\d\s.,]*)(?:\s+(?:RUR|RUB|USD|EUR|GBP|KZT|₽|\$|€|£|₸))?\s*$/;
+const workdayBasePayRangeTextPattern =
+  /^\s*(?:primary\s+location\s+)?base\s+pay\s+range\s*:\s*(?:[$€£₽₸]\s*)?\d[\d\s.,]*(?:\s*(?:RUR|RUB|USD|EUR|GBP|KZT))?(?:\s*[–-]\s*(?:[$€£₽₸]\s*)?\d[\d\s.,]*(?:\s*(?:RUR|RUB|USD|EUR|GBP|KZT))?)?\s*$/i;
 
 function normalizeMoneyToken(value: string | undefined) {
   return value?.trim().replace(/-/g, "_").toUpperCase();
@@ -186,31 +195,49 @@ function normalizeMoneyToken(value: string | undefined) {
 function knownMachineMoneyText(money: OpportunityRecord["money"]) {
   return Boolean(
     money.originalText &&
-      hasFiniteMoneyValue(money) &&
-      (machineMoneyTextPattern.test(money.originalText) ||
-        boundedMachineMoneyTextPattern.test(money.originalText) ||
-        workdayBasePayRangeTextPattern.test(money.originalText))
+    hasFiniteMoneyValue(money) &&
+    (machineMoneyTextPattern.test(money.originalText) ||
+      boundedMachineMoneyTextPattern.test(money.originalText) ||
+      workdayBasePayRangeTextPattern.test(money.originalText))
   );
 }
 
 function hasFiniteMoneyValue(money: OpportunityRecord["money"]) {
-  return [money.min, money.max].some((value) => typeof value === "number" && Number.isFinite(value));
+  return [money.min, money.max].some(
+    (value) => typeof value === "number" && Number.isFinite(value)
+  );
 }
 
 export function moneyLabel(money: OpportunityRecord["money"] = {}, locale: "ru" | "en" = "ru") {
   if (money.originalText && !knownMachineMoneyText(money)) return money.originalText;
-  const numericValues = [money.min, money.max].filter((value): value is number => typeof value === "number" && Number.isFinite(value));
-  const uniqueValues = numericValues.length === 2 && numericValues[0] === numericValues[1] ? [numericValues[0]] : numericValues;
-  const values = uniqueValues.map((value) => value.toLocaleString(locale === "en" ? "en-US" : "ru-RU"));
-  const boundLabel = numericValues.length === 1
-    ? typeof money.min === "number" && Number.isFinite(money.min)
-      ? locale === "en" ? "from " : "от "
-      : locale === "en" ? "up to " : "до "
-    : "";
+  const numericValues = [money.min, money.max].filter(
+    (value): value is number => typeof value === "number" && Number.isFinite(value)
+  );
+  const uniqueValues =
+    numericValues.length === 2 && numericValues[0] === numericValues[1]
+      ? [numericValues[0]]
+      : numericValues;
+  const values = uniqueValues.map((value) =>
+    value.toLocaleString(locale === "en" ? "en-US" : "ru-RU")
+  );
+  const boundLabel =
+    numericValues.length === 1
+      ? typeof money.min === "number" && Number.isFinite(money.min)
+        ? locale === "en"
+          ? "from "
+          : "от "
+        : locale === "en"
+          ? "up to "
+          : "до "
+      : "";
   const currencyToken = normalizeMoneyToken(money.currency);
-  const currency = currencyToken ? (currencyLabels[locale][currencyToken] ?? money.currency?.trim() ?? "") : "";
+  const currency = currencyToken
+    ? (currencyLabels[locale][currencyToken] ?? money.currency?.trim() ?? "")
+    : "";
   const periodToken = normalizeMoneyToken(money.period)?.toLowerCase();
-  const period = periodToken ? (periodLabels[locale][periodToken] ?? money.period?.trim() ?? "") : "";
+  const period = periodToken
+    ? (periodLabels[locale][periodToken] ?? money.period?.trim() ?? "")
+    : "";
   return values.length
     ? `${boundLabel}${values.join(" – ")}${currency ? ` ${currency}` : ""}${period ? ` / ${period}` : ""}`
     : locale === "en"
@@ -218,39 +245,60 @@ export function moneyLabel(money: OpportunityRecord["money"] = {}, locale: "ru" 
       : "Сумма не указана";
 }
 
-const recognizedDescriptionHtmlPattern = /<\/?(?:p|div|br|ul|ol|li|h[1-6]|blockquote|section|article|strong|em|b|i|span|a|code|pre)\b[^>]*>/i;
+const recognizedDescriptionHtmlPattern =
+  /<\/?(?:p|div|br|ul|ol|li|h[1-6]|blockquote|section|article|strong|em|b|i|span|a|code|pre)\b[^>]*>/i;
 
 function decodeDescriptionEntity(entity: string) {
   const rawName = entity.slice(1, -1);
   const name = rawName.toLowerCase();
-  const named: Record<string, string> = { nbsp: " ", amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+  const named: Record<string, string> = {
+    nbsp: " ",
+    amp: "&",
+    lt: "<",
+    gt: ">",
+    quot: '"',
+    apos: "'"
+  };
   if (name in named) return named[name];
   const codePoint = /^#x[0-9a-f]+$/i.test(rawName)
     ? Number.parseInt(rawName.slice(2), 16)
     : /^#\d+$/.test(rawName)
       ? Number.parseInt(rawName.slice(1), 10)
       : null;
-  if (codePoint === null || !Number.isInteger(codePoint) || codePoint < 0 || codePoint > 0x10FFFF || codePoint >= 0xD800 && codePoint <= 0xDFFF) return entity;
+  if (
+    codePoint === null ||
+    !Number.isInteger(codePoint) ||
+    codePoint < 0 ||
+    codePoint > 0x10ffff ||
+    (codePoint >= 0xd800 && codePoint <= 0xdfff)
+  )
+    return entity;
   return String.fromCodePoint(codePoint);
 }
 
 function decodeDescriptionEntities(value: string) {
-  return value.replace(/&(?:nbsp|amp|lt|gt|quot|apos|#\d+|#x[0-9a-f]+);/gi, match => decodeDescriptionEntity(match));
+  return value.replace(/&(?:nbsp|amp|lt|gt|quot|apos|#\d+|#x[0-9a-f]+);/gi, (match) =>
+    decodeDescriptionEntity(match)
+  );
 }
 
 export function plainOpportunityDescription(description: string) {
   if (!recognizedDescriptionHtmlPattern.test(description)) {
     let fence: string | undefined;
-    return description.split("\n").map(line => {
-      const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
-      if (marker) {
-        if (!fence) fence = marker;
-        else if (marker[0] === fence[0] && marker.length >= fence.length) fence = undefined;
-        return line;
-      }
-      if (fence) return line;
-      return line.replace(/^ {0,3}#{1,6}[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$/, "$1");
-    }).join("\n").trim();
+    return description
+      .split("\n")
+      .map((line) => {
+        const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+        if (marker) {
+          if (!fence) fence = marker;
+          else if (marker[0] === fence[0] && marker.length >= fence.length) fence = undefined;
+          return line;
+        }
+        if (fence) return line;
+        return line.replace(/^ {0,3}#{1,6}[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*$/, "$1");
+      })
+      .join("\n")
+      .trim();
   }
   const text = description
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
@@ -266,7 +314,7 @@ export function plainOpportunityDescription(description: string) {
   return decodeDescriptionEntities(text)
     .replace(/\r\n?/g, "\n")
     .split("\n")
-    .map(line => line.replace(/[ \t\f\v]+/g, " ").trim())
+    .map((line) => line.replace(/[ \t\f\v]+/g, " ").trim())
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .replace(/•\n+(?=\S)/g, "• ")
@@ -282,12 +330,18 @@ export function sourceUrl(opportunity: OpportunityRecord) {
     ? occurrence.url
     : undefined;
 }
-export function opportunityPlaceLabel(opportunity: Pick<OpportunityRecord, "location" | "remoteType">, locale: "ru" | "en" = "ru") {
-  const labels = [opportunity.location, opportunity.remoteType].reduce<string[]>((result, value) => {
-    if (!value) return result;
-    const label = factLabel(String(value), locale);
-    return result.includes(label) ? result : [...result, label];
-  }, []);
+export function opportunityPlaceLabel(
+  opportunity: Pick<OpportunityRecord, "location" | "remoteType">,
+  locale: "ru" | "en" = "ru"
+) {
+  const labels = [opportunity.location, opportunity.remoteType].reduce<string[]>(
+    (result, value) => {
+      if (!value) return result;
+      const label = factLabel(String(value), locale);
+      return result.includes(label) ? result : [...result, label];
+    },
+    []
+  );
   return labels.join(" · ");
 }
 
@@ -336,8 +390,18 @@ export function toMini(
 
 export function normalizeFactToken(value: string) {
   const token = value.trim();
-  const normalized = token.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/[\s-]+/g, "_").toLowerCase();
-  const aliases: Record<string, string> = { telecommute: "remote", fulltime: "full_time", parttime: "part_time", contractor: "contractor", ft: "full_time", senior_level: "senior" };
+  const normalized = token
+    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+    .replace(/[\s-]+/g, "_")
+    .toLowerCase();
+  const aliases: Record<string, string> = {
+    telecommute: "remote",
+    fulltime: "full_time",
+    parttime: "part_time",
+    contractor: "contractor",
+    ft: "full_time",
+    senior_level: "senior"
+  };
   return aliases[normalized] ?? normalized;
 }
 

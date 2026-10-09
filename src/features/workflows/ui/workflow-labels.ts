@@ -14,7 +14,7 @@ export function resolveWorkflowLocale(locale?: string | null): WorkflowLocale {
 export const taskTypeLabels: Record<WorkflowLocale, Record<TaskType, string>> = {
   ru: {
     Task: "Задача",
-    "Follow-up": "Follow-up",
+    "Follow-up": "Напомнить о себе",
     "Interview Prep": "Подготовка к интервью",
     Application: "Отклик",
     "Tender Step": "Шаг тендера",
@@ -49,13 +49,13 @@ export const priorityLabels: Record<WorkflowLocale, Record<string, string>> = {
 
 export const eventTypeLabels: Record<WorkflowLocale, Record<string, string>> = {
   ru: {
-    follow_up: "Follow-up",
+    follow_up: "Напомнить о себе",
     interview: "Интервью",
     technical_interview: "Техническое интервью",
     call: "Звонок",
     application_deadline: "Дедлайн отклика",
     tender_deadline: "Дедлайн тендера",
-    freelance_deadline: "Дедлайн freelance",
+    freelance_deadline: "Срок проекта",
     task_due: "Срок задачи"
   },
   en: {
@@ -65,7 +65,7 @@ export const eventTypeLabels: Record<WorkflowLocale, Record<string, string>> = {
     call: "Call",
     application_deadline: "Application deadline",
     tender_deadline: "Tender deadline",
-    freelance_deadline: "Freelance deadline",
+    freelance_deadline: "Project deadline",
     task_due: "Task due"
   }
 };
@@ -137,12 +137,12 @@ export const pipelineStageLabels: Record<WorkflowLocale, Record<string, string>>
 export const pipelineTypeLabels: Record<WorkflowLocale, Record<string, string>> = {
   ru: {
     vacancy: "Вакансии",
-    freelance: "Фриланс",
+    freelance: "Проекты",
     tender: "Тендеры"
   },
   en: {
     vacancy: "Vacancies",
-    freelance: "Freelance",
+    freelance: "Project",
     tender: "Tenders"
   }
 };
@@ -150,16 +150,28 @@ export const pipelineTypeLabels: Record<WorkflowLocale, Record<string, string>> 
 export const searchTypeLabels: Record<WorkflowLocale, Record<string, string>> = {
   ru: {
     opportunity: "Возможность",
+    opportunities: "Возможности",
     task: "Задача",
+    tasks: "Задачи",
     profile: "Профиль",
-    watchlist: "Watchlist",
-    knowledge: "Знания"
+    profiles: "Профили",
+    watchlist: "Автопоиск",
+    watchlists: "Автопоиск",
+    saved_view: "Сохранённый поиск",
+    savedViews: "Сохранённые поиски",
+    knowledge: "База знаний"
   },
   en: {
     opportunity: "Opportunity",
+    opportunities: "Opportunities",
     task: "Task",
+    tasks: "Tasks",
     profile: "Profile",
-    watchlist: "Watchlist",
+    profiles: "Profiles",
+    watchlist: "Autosearch",
+    watchlists: "Autosearch",
+    saved_view: "Saved search",
+    savedViews: "Saved searches",
     knowledge: "Knowledge"
   }
 };
@@ -168,13 +180,13 @@ export const notificationCategoryLabels: Record<WorkflowLocale, Record<string, s
   ru: {
     opportunity: "Возможности",
     ai: "AI",
-    workflow: "Workflow",
+    workflow: "Работа",
     collaboration: "Совместная работа",
     system: "Система",
     admin: "Админ",
     Opportunity: "Возможности",
     AI: "AI",
-    Workflow: "Workflow",
+    Workflow: "Работа",
     Collaboration: "Совместная работа",
     System: "Система",
     Admin: "Админ"
@@ -182,13 +194,13 @@ export const notificationCategoryLabels: Record<WorkflowLocale, Record<string, s
   en: {
     opportunity: "Opportunities",
     ai: "AI",
-    workflow: "Workflow",
+    workflow: "Work",
     collaboration: "Collaboration",
     system: "System",
     admin: "Admin",
     Opportunity: "Opportunities",
     AI: "AI",
-    Workflow: "Workflow",
+    Workflow: "Work",
     Collaboration: "Collaboration",
     System: "System",
     Admin: "Admin"
@@ -219,23 +231,34 @@ export const notificationKindLabels: Record<WorkflowLocale, Record<string, strin
     system: "Система",
     opportunity: "Возможность",
     task: "Задача",
-    workflow: "Рабочий процесс"
+    workflow: "Работа"
   },
   en: {
     system: "System",
     opportunity: "Opportunity",
     task: "Task",
-    workflow: "Workflow"
+    workflow: "Work"
   }
 };
 
-export function enumLabel(labels: Record<WorkflowLocale, Record<string, string>> | Record<string, string>, value?: string, locale: WorkflowLocale = "ru") {
+export function enumLabel(
+  labels: Record<WorkflowLocale, Record<string, string>> | Record<string, string>,
+  value?: string,
+  locale: WorkflowLocale = "ru"
+) {
   if (!value) return "";
-  const localized = "ru" in labels || "en" in labels ? (labels as Record<WorkflowLocale, Record<string, string>>)[locale] : labels as Record<string, string>;
+  const localized =
+    "ru" in labels || "en" in labels
+      ? (labels as Record<WorkflowLocale, Record<string, string>>)[locale]
+      : (labels as Record<string, string>);
   return localized?.[value] ?? value;
 }
 
-export function formatWorkflowDateTime(value?: string | Date | null, locale: WorkflowLocale = "ru", timeZone?: string) {
+export function formatWorkflowDateTime(
+  value?: string | Date | null,
+  locale: WorkflowLocale = "ru",
+  timeZone?: string
+) {
   if (!value) return "";
   const date = typeof value === "string" ? new Date(value) : value;
   if (!Number.isFinite(+date)) return "";
@@ -250,12 +273,24 @@ export function formatWorkflowNumber(value: number, locale: WorkflowLocale = "ru
   return new Intl.NumberFormat(localeTags[locale], { maximumFractionDigits: 1 }).format(value);
 }
 
-export function countLabel(count: number, ruForms: [string, string, string], enSingular: string, enPlural = `${enSingular}s`, locale: WorkflowLocale = "ru") {
-  if (locale === "en") return `${formatWorkflowNumber(count, locale)} ${count === 1 ? enSingular : enPlural}`;
+export function countLabel(
+  count: number,
+  ruForms: [string, string, string],
+  enSingular: string,
+  enPlural = `${enSingular}s`,
+  locale: WorkflowLocale = "ru"
+) {
+  if (locale === "en")
+    return `${formatWorkflowNumber(count, locale)} ${count === 1 ? enSingular : enPlural}`;
   const abs = Math.abs(count);
   const mod10 = abs % 10;
   const mod100 = abs % 100;
-  const form = mod10 === 1 && mod100 !== 11 ? ruForms[0] : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14) ? ruForms[1] : ruForms[2];
+  const form =
+    mod10 === 1 && mod100 !== 11
+      ? ruForms[0]
+      : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+        ? ruForms[1]
+        : ruForms[2];
   return `${formatWorkflowNumber(count, locale)} ${form}`;
 }
 
@@ -263,7 +298,8 @@ export type DirectoryUser = Pick<AdminUser, "id" | "_id" | "name" | "email">;
 
 export function userDirectory(users?: DirectoryUser[], currentUser?: CurrentUser | null) {
   const map = new Map<string, string>();
-  if (currentUser?.id) map.set(currentUser.id, currentUser.name || currentUser.email || currentUser.id);
+  if (currentUser?.id)
+    map.set(currentUser.id, currentUser.name || currentUser.email || currentUser.id);
   for (const user of users ?? []) {
     const id = user.id ?? user._id;
     if (!id) continue;
@@ -273,15 +309,27 @@ export function userDirectory(users?: DirectoryUser[], currentUser?: CurrentUser
 }
 
 export function participantOptions(board: TaskBoard | null, userId?: string) {
-  return Array.from(new Set([userId, board?.ownerUserId, ...(board?.members ?? [])].filter(Boolean) as string[]));
+  return Array.from(
+    new Set([userId, board?.ownerUserId, ...(board?.members ?? [])].filter(Boolean) as string[])
+  );
 }
 
-export function participantLabel(id: string, directory: Map<string, string>, currentUserId?: string, locale: WorkflowLocale = "ru") {
+export function participantLabel(
+  id: string,
+  directory: Map<string, string>,
+  currentUserId?: string,
+  locale: WorkflowLocale = "ru"
+) {
   if (id === currentUserId) return locale === "en" ? "Me" : "Я";
   return directory.get(id) ?? (locale === "en" ? "Board member" : "Участник доски");
 }
 
-export function assigneeLabel(task: Pick<TaskItem, "assigneeId" | "assigneeName">, directory: Map<string, string>, currentUserId?: string, locale: WorkflowLocale = "ru") {
+export function assigneeLabel(
+  task: Pick<TaskItem, "assigneeId" | "assigneeName">,
+  directory: Map<string, string>,
+  currentUserId?: string,
+  locale: WorkflowLocale = "ru"
+) {
   if (!task.assigneeId) return "";
   if (task.assigneeName) return task.assigneeName;
   if (task.assigneeId === currentUserId) return locale === "en" ? "Me" : "Я";

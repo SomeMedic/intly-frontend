@@ -11,7 +11,7 @@ export const knowledgeStatusLabels: Record<KnowledgeLocale, Record<KnowledgeStat
     Uploading: "Загружается",
     Parsing: "Читаем файл",
     Chunking: "Готовим фрагменты",
-    Embedding: "Строим смысловой индекс",
+    Embedding: "Готовим смысловой поиск",
     Indexing: "Добавляем в поиск",
     Indexed: "Готов",
     Failed: "Ошибка"
@@ -27,12 +27,15 @@ export const knowledgeStatusLabels: Record<KnowledgeLocale, Record<KnowledgeStat
   }
 };
 
-export const knowledgeStatusDescriptions: Record<KnowledgeLocale, Record<KnowledgeStatus, string>> = {
+export const knowledgeStatusDescriptions: Record<
+  KnowledgeLocale,
+  Record<KnowledgeStatus, string>
+> = {
   ru: {
     Uploading: "Файл сохраняется и скоро попадёт в очередь обработки.",
     Parsing: "Извлекаем текст из файла или изображения.",
     Chunking: "Разбиваем текст на удобные для поиска фрагменты.",
-    Embedding: "Создаём векторное представление для смыслового поиска.",
+    Embedding: "Готовим документ для поиска по смыслу.",
     Indexing: "Обновляем поисковый индекс базы знаний.",
     Indexed: "Документ готов для поиска и AI-контекста.",
     Failed: "Обработка остановилась с ошибкой. Можно запустить повторно."
@@ -50,14 +53,14 @@ export const knowledgeStatusDescriptions: Record<KnowledgeLocale, Record<Knowled
 
 export const knowledgeModeDescriptions: Record<KnowledgeLocale, Record<KnowledgeMode, string>> = {
   ru: {
-    always_include: "Документ можно добавлять в AI-контекст сразу, когда он подходит профилю.",
-    rag_only: "Документ ищется по смысловому запросу и попадает в AI только как найденное подтверждение.",
-    disabled: "Документ хранится в базе, но не участвует в AI-контексте и поиске."
+    always_include: "Документ можно сразу учитывать в ответах AI, когда он подходит профилю.",
+    rag_only: "Документ участвует в поиске и попадает в AI только как найденное подтверждение.",
+    disabled: "Документ хранится в базе, но не участвует в поиске и ответах AI."
   },
   en: {
-    always_include: "The document can be added to AI context whenever it matches the profile.",
-    rag_only: "The document is found through semantic search and sent to AI only as retrieved evidence.",
-    disabled: "The document is stored, but does not participate in AI context or search."
+    always_include: "The document can be used in AI answers whenever it matches the profile.",
+    rag_only: "The document participates in search and reaches AI only as retrieved evidence.",
+    disabled: "The document is stored, but does not participate in search or AI answers."
   }
 };
 
@@ -84,8 +87,8 @@ export const knowledgeTypeLabels = {
 
 export const knowledgeModeLabels: Record<KnowledgeLocale, Record<KnowledgeMode, string>> = {
   ru: {
-    always_include: "Всегда в контекст",
-    rag_only: "Поиск по запросу",
+    always_include: "Всегда учитывать",
+    rag_only: "Только при поиске",
     disabled: "Отключено"
   },
   en: {
@@ -95,7 +98,13 @@ export const knowledgeModeLabels: Record<KnowledgeLocale, Record<KnowledgeMode, 
   }
 };
 
-const processingStatuses = new Set<KnowledgeStatus>(["Uploading", "Parsing", "Chunking", "Embedding", "Indexing"]);
+const processingStatuses = new Set<KnowledgeStatus>([
+  "Uploading",
+  "Parsing",
+  "Chunking",
+  "Embedding",
+  "Indexing"
+]);
 
 export function isKnowledgeProcessing(document?: Pick<KnowledgeDocument, "status"> | null) {
   return !!document && processingStatuses.has(document.status);
@@ -103,13 +112,23 @@ export function isKnowledgeProcessing(document?: Pick<KnowledgeDocument, "status
 
 export function knowledgeChunkLabel(count: number, locale: KnowledgeLocale = "ru") {
   const normalized = Math.max(0, Number.isFinite(count) ? Math.trunc(count) : 0);
-  if (locale === "en") return `${formatKnowledgeNumber(normalized, locale)} ${normalized === 1 ? "fragment" : "fragments"}`;
+  if (locale === "en")
+    return `${formatKnowledgeNumber(normalized, locale)} ${normalized === 1 ? "fragment" : "fragments"}`;
   const lastTwo = normalized % 100;
   const last = normalized % 10;
-  const form = lastTwo >= 11 && lastTwo <= 14 ? "фрагментов" : last === 1 ? "фрагмент" : last >= 2 && last <= 4 ? "фрагмента" : "фрагментов";
+  const form =
+    lastTwo >= 11 && lastTwo <= 14
+      ? "фрагментов"
+      : last === 1
+        ? "фрагмент"
+        : last >= 2 && last <= 4
+          ? "фрагмента"
+          : "фрагментов";
   return `${formatKnowledgeNumber(normalized, locale)} ${form}`;
 }
 
 function formatKnowledgeNumber(value: number, locale: KnowledgeLocale) {
-  return new Intl.NumberFormat(locale === "en" ? "en-US" : "ru-RU", { maximumFractionDigits: 1 }).format(value);
+  return new Intl.NumberFormat(locale === "en" ? "en-US" : "ru-RU", {
+    maximumFractionDigits: 1
+  }).format(value);
 }

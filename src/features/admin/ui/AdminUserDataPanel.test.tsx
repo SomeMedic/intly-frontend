@@ -5,6 +5,10 @@ vi.mock("@/services/api", () => ({ api: { get: vi.fn(), post: vi.fn() } }));
 vi.mock("@/components/ui/badge", () => ({ Badge: ({ children }: { children?: ReactNode }) => <span>{children}</span> }));
 vi.mock("@/components/ui/button", () => ({ Button: ({ children }: { children?: ReactNode }) => <button>{children}</button> }));
 vi.mock("@/components/ui/modal", () => ({ Modal: ({ children }: { children?: ReactNode }) => <div>{children}</div> }));
+vi.mock("@/components/intly/app-shell", () => ({ AppShell: ({ children }: { children?: ReactNode }) => <div>{children}</div> }));
+vi.mock("@/components/intly/error-state", () => ({ ErrorState: ({ title }: { title?: string }) => <div>{title}</div> }));
+vi.mock("@/components/intly/loading", () => ({ Skeleton: () => <div /> }));
+vi.mock("@/features/auth", () => ({ useAuth: () => ({ bootstrapped: true, user: { role: "Admin", settings: { locale: "ru" } } }) }));
 vi.mock("@/components/intly/rich-text-editor", () => ({
   documentToMarkdown: (document: { content?: Array<{ content?: Array<{ text?: string }> }> }) => document.content?.flatMap((node) => node.content?.flatMap((item) => item.text ? [item.text] : []) ?? []).join("\n\n") ?? "",
 }));

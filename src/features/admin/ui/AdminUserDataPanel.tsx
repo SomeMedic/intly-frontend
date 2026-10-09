@@ -22,6 +22,7 @@ import {
 } from "../api/admin-user-inspector-api";
 import type { AdminLocale, Localized } from "./admin-locale";
 import { commonAdminCopy, useAdminLocale } from "./admin-locale";
+import { adminPanelClass, adminSubPanelClass } from "./AdminShared";
 
 const sectionIcons: Record<AdminUserInspectorSection, typeof UserRound> = {
   profiles: UserRound,
@@ -74,7 +75,7 @@ type InspectorCopy = {
 const inspectorCopy: Localized<InspectorCopy> = {
   ru: {
     title: "Данные пользователя",
-    description: "Просмотр личных данных выбранного пользователя: профили, резюме, отклики, задачи, база знаний и AI-история. Записи открываются только для чтения.",
+    description: "Личные данные выбранного пользователя: профили, резюме, отклики, задачи, база знаний и AI-история. Записи доступны только для чтения.",
     chooseUser: "Выберите пользователя, чтобы открыть инспектор данных.",
     overview: "Сводка",
     currentMonth: "Текущий месяц",
@@ -249,11 +250,11 @@ export function AdminUserDataPanel({ userId, userLabel, enabled = true, initialO
   };
 
   if (!userId) {
-    return <section className="rounded-lg border bg-card p-[var(--card-padding)] text-sm text-muted-foreground">{text.chooseUser}</section>;
+    return <section className={`${adminPanelClass} text-sm text-muted-foreground`}>{text.chooseUser}</section>;
   }
 
   return (
-    <section className="min-w-0 rounded-lg border bg-card p-[var(--card-padding)]">
+    <section className={adminPanelClass}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -356,7 +357,7 @@ function MetricSkeleton() {
 }
 
 function MetricCard({ label, value, hint, muted }: { label: string; value: string; hint?: string; muted?: boolean }) {
-  return <div className="min-w-0 rounded-md border p-3"><p className="truncate text-xs text-muted-foreground">{label}</p><p className={`mt-1 truncate text-lg font-semibold ${muted ? "text-muted-foreground" : ""}`}>{value}</p>{hint ? <p className="mt-1 line-clamp-3 text-xs text-muted-foreground">{hint}</p> : null}</div>;
+  return <div className={adminSubPanelClass}><p className="truncate text-xs text-muted-foreground">{label}</p><p className={`mt-1 truncate text-lg font-semibold ${muted ? "text-muted-foreground" : ""}`}>{value}</p>{hint ? <p className="mt-1 line-clamp-3 text-xs text-muted-foreground">{hint}</p> : null}</div>;
 }
 
 function InspectorItemCard({ item, section, locale, text, onOpen }: { item: AdminUserInspectorItem; section: AdminUserInspectorSection; locale: AdminLocale; text: InspectorCopy; onOpen: (item: SelectedInspectorItem) => void }) {
@@ -365,7 +366,7 @@ function InspectorItemCard({ item, section, locale, text, onOpen }: { item: Admi
   const title = item.title || item.name || item.summary ? rawTitle : localizedVisibleValue(rawTitle, locale);
   const preview = previewEntries(item);
   return (
-    <article className="min-w-0 rounded-lg border bg-card p-3">
+    <article className={adminSubPanelClass}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="min-w-0 truncate font-medium">{title}</h3>
@@ -394,7 +395,7 @@ function InspectorContent({ item, locale, text }: { item: AdminUserInspectorItem
 
 function DocumentReadBlock({ label, value }: { label: string; value: string }) {
   return (
-    <section className="min-w-0 rounded-md border bg-card p-4">
+    <section className={adminSubPanelClass}>
       <h4 className="text-xs font-medium tracking-wide text-muted-foreground">{label}</h4>
       <div className="mt-3 max-h-[42rem] overflow-auto whitespace-pre-wrap break-words text-sm leading-7">{value}</div>
     </section>

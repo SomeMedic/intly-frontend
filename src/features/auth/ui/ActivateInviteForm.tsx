@@ -40,37 +40,67 @@ export function ActivateInviteForm() {
   });
 
   if (!token) {
-    return <ErrorState title="Приглашение недоступно" message="В ссылке нет токена приглашения." />;
+    return (
+      <ErrorState
+        title="Приглашение не открывается"
+        message="Попросите администратора отправить новую ссылку."
+      />
+    );
   }
 
   if (validation.isLoading) {
-    return <div className="text-sm text-muted-foreground">Проверяем приглашение...</div>;
+    return (
+      <div className="rounded-md border border-dashed bg-muted/25 p-4 text-sm text-muted-foreground">
+        Проверяем приглашение...
+      </div>
+    );
   }
 
   if (validation.isError || validation.data?.status !== "Invited") {
-    return <ErrorState title="Приглашение недоступно" message="Ссылка истекла, уже использована или недействительна. Обратитесь к администратору." />;
+    return (
+      <ErrorState
+        title="Приглашение неактивно"
+        message="Ссылка уже использована или устарела. Администратор может отправить новую."
+      />
+    );
   }
 
   return (
     <form className="space-y-4" onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>
-      <div className="rounded-md border bg-muted/45 p-3 text-sm text-muted-foreground">
-        Активируем аккаунт для {validation.data?.email ?? "приглашенного пользователя"}.
+      <div className="rounded-md border bg-muted/35 p-3 text-sm leading-6 text-muted-foreground">
+        Создаём доступ для {validation.data?.email ?? "приглашённого пользователя"}.
       </div>
-      {mutation.error ? <ErrorState message="Не удалось активировать приглашение. Проверьте срок действия ссылки." /> : null}
+      {mutation.error ? (
+        <ErrorState message="Не удалось завершить активацию. Проверьте ссылку или запросите новую." />
+      ) : null}
       <label className="block space-y-1.5 text-sm">
         <span className="font-medium">Имя</span>
-        <Input autoComplete="name" {...form.register("name")} />
+        <Input
+          autoComplete="name"
+          placeholder="Как вас показывать в INTLY"
+          {...form.register("name")}
+        />
       </label>
       <label className="block space-y-1.5 text-sm">
         <span className="font-medium">Пароль</span>
-        <Input type="password" autoComplete="new-password" {...form.register("password")} />
+        <Input
+          type="password"
+          autoComplete="new-password"
+          placeholder="Минимум 8 символов"
+          {...form.register("password")}
+        />
       </label>
       <label className="block space-y-1.5 text-sm">
         <span className="font-medium">Повторите пароль</span>
-        <Input type="password" autoComplete="new-password" {...form.register("confirmPassword")} />
+        <Input
+          type="password"
+          autoComplete="new-password"
+          placeholder="Повторите пароль"
+          {...form.register("confirmPassword")}
+        />
       </label>
       <Button className="w-full" type="submit" loading={mutation.isPending || validation.isLoading}>
-        Активировать
+        Войти в рабочее пространство
       </Button>
     </form>
   );

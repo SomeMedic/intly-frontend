@@ -6,8 +6,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-geist-sans, Geist)", "Inter", "system-ui", "sans-serif"],
-        mono: ["var(--font-jetbrains-mono, JetBrains Mono)", "ui-monospace", "monospace"]
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"]
       },
       colors: {
         border: "hsl(var(--border))",

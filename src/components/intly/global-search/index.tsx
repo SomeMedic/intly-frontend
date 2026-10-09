@@ -4,7 +4,19 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ArrowRight, BriefcaseBusiness, Clock3, FileText, FolderSearch, Layers3, Loader2, Search, Sparkles, UserRound, X } from "lucide-react";
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  Clock3,
+  FileText,
+  FolderSearch,
+  Layers3,
+  Loader2,
+  Search,
+  Sparkles,
+  UserRound,
+  X
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,30 +40,34 @@ type RecentSearch = { id: string; query: string; scope?: GlobalSearchScope; crea
 const copy = {
   ru: {
     trigger: "Поиск",
-    triggerFull: "Поиск по вакансиям, задачам, профилям и знаниям",
-    placeholder: "Введите запрос или естественное описание...",
+    triggerFull: "Найти возможности, задачи, профили или заметки",
+    placeholder: "Что ищем?",
     close: "Закрыть поиск",
-    examplesTitle: "Быстрый старт",
+    examplesTitle: "Примеры запросов",
     recentTitle: "Недавние",
     categoriesTitle: "Категории",
     resultsTitle: "Результаты",
     previewTitle: "Предпросмотр",
-    loading: "Ищу по доступным данным...",
-    empty: "Ничего не найдено",
-    emptyHint: "Попробуйте другой запрос или категорию.",
+    loading: "Ищем совпадения...",
+    empty: "Пока нет совпадений",
+    emptyHint: "Уточните запрос или выберите другую категорию.",
     error: "Поиск временно недоступен",
-    noPreview: "Выберите результат, чтобы увидеть краткое описание.",
-    semantic: "ключевой + семантический поиск",
+    noPreview: "Выберите строку слева, чтобы быстро оценить результат.",
+    semantic: "Введите минимум два символа.",
     open: "Открыть",
-    examples: ["Senior Python remote", "Заказы на AI-агентов от 100k", "Тендеры с дедлайном на этой неделе"],
+    examples: [
+      "Senior Python remote",
+      "Заказы на AI-агентов от 100k",
+      "Тендеры с дедлайном на этой неделе"
+    ],
     categories: [
       ["opportunities", "Все возможности"],
       ["vacancies", "Вакансии"],
-      ["freelance", "Фриланс"],
+      ["freelance", "Проекты"],
       ["tenders", "Тендеры"],
       ["tasks", "Задачи"],
       ["profiles", "Профили"],
-      ["watchlists", "Подборки"]
+      ["watchlists", "Автопоиск"]
     ] as Array<[string, string]>
   },
   en: {
@@ -71,15 +87,19 @@ const copy = {
     noPreview: "Select a result to see its short preview.",
     semantic: "keyword + semantic search",
     open: "Open",
-    examples: ["Senior Python remote", "AI agent projects above 100k", "Tenders with deadlines this week"],
+    examples: [
+      "Senior Python remote",
+      "AI agent projects above 100k",
+      "Tenders with deadlines this week"
+    ],
     categories: [
       ["opportunities", "All opportunities"],
       ["vacancies", "Vacancies"],
-      ["freelance", "Freelance"],
+      ["freelance", "Projects"],
       ["tenders", "Tenders"],
       ["tasks", "Tasks"],
       ["profiles", "Profiles"],
-      ["watchlists", "Watchlists"]
+      ["watchlists", "Autosearch"]
     ] as Array<[string, string]>
   }
 } as const;
@@ -124,13 +144,27 @@ export function GlobalSearch() {
 
   const results = useQuery({
     queryKey: ["global-search", debouncedQuery, scope],
-    queryFn: () => api.post<GlobalSearchResponse>("/search", { query: debouncedQuery, scope, mode: "hybrid", limit: 8 }),
+    queryFn: () =>
+      api.post<GlobalSearchResponse>("/search", {
+        query: debouncedQuery,
+        scope,
+        mode: "hybrid",
+        limit: 8
+      }),
     enabled: canSearch,
     staleTime: 5_000
   });
 
-  const normalized = useMemo(() => flattenSearchResponse(results.data, scope), [results.data, scope]);
-  const activeIndex = selectedIndex >= 0 && selectedIndex < normalized.flat.length ? selectedIndex : normalized.flat.length ? 0 : -1;
+  const normalized = useMemo(
+    () => flattenSearchResponse(results.data, scope),
+    [results.data, scope]
+  );
+  const activeIndex =
+    selectedIndex >= 0 && selectedIndex < normalized.flat.length
+      ? selectedIndex
+      : normalized.flat.length
+        ? 0
+        : -1;
   const activeResult = activeIndex >= 0 ? normalized.flat[activeIndex] : undefined;
 
   const close = () => {
@@ -157,43 +191,62 @@ export function GlobalSearch() {
         onClick={() => setSearchOpen(true)}
         title={text.triggerFull}
         aria-label={text.triggerFull}
-        className="flex h-[var(--control-height)] w-10 shrink-0 items-center justify-center gap-2 rounded-md border bg-card px-2 text-left text-sm text-muted-foreground shadow-sm transition hover:border-primary/45 sm:w-28 sm:justify-start sm:px-3 2xl:min-w-28 2xl:flex-1"
+        className="flex h-[var(--control-height)] w-10 shrink-0 items-center justify-center gap-2 rounded-md border bg-card/90 px-2 text-left text-sm text-muted-foreground shadow-sm transition hover:border-primary/45 hover:text-foreground sm:w-28 sm:justify-start sm:px-3 2xl:min-w-28 2xl:flex-1"
       >
         <Search className="size-4 shrink-0" />
         <span className="hidden truncate sm:inline 2xl:hidden">{text.trigger}</span>
         <span className="hidden truncate 2xl:inline">{text.triggerFull}</span>
       </button>
-      <Dialog.Root open={searchOpen} onOpenChange={(open) => { if (!open) close(); }}>
+      <Dialog.Root
+        open={searchOpen}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
+      >
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-50 bg-background/78 backdrop-blur-sm motion-reduce:backdrop-blur-none" />
           <Dialog.Content
-          className="fixed left-1/2 top-7 z-50 grid max-h-[calc(100dvh-3.5rem)] w-[calc(100%-1.5rem)] max-w-5xl -translate-x-1/2 grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-lg border bg-card shadow-floating sm:top-[7vh] sm:max-h-[86dvh]"
-          onOpenAutoFocus={(event) => { event.preventDefault(); inputRef.current?.focus(); }}
-          onCloseAutoFocus={(event) => { event.preventDefault(); invokeRef.current?.focus(); }}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") {
+            className="fixed left-1/2 top-7 z-50 grid max-h-[calc(100dvh-3.5rem)] w-[calc(100%-1.5rem)] max-w-5xl -translate-x-1/2 grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] overflow-hidden rounded-lg border bg-card shadow-floating sm:top-[7vh] sm:max-h-[86dvh]"
+            onOpenAutoFocus={(event) => {
               event.preventDefault();
-              close();
-            }
-            if (event.target === inputRef.current && event.key === "ArrowDown") {
+              inputRef.current?.focus();
+            }}
+            onCloseAutoFocus={(event) => {
               event.preventDefault();
-              setSelectedIndex((current) => nextSelectedIndex(current, normalized.flat.length, 1));
-            }
-            if (event.target === inputRef.current && event.key === "ArrowUp") {
-              event.preventDefault();
-              setSelectedIndex((current) => nextSelectedIndex(current, normalized.flat.length, -1));
-            }
-            if (event.target === inputRef.current && event.key === "Enter" && normalized.flat.length) {
-              event.preventDefault();
-              openResult(normalized.flat[activeIndex >= 0 ? activeIndex : 0]);
-            }
-          }}
-        >
+              invokeRef.current?.focus();
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.preventDefault();
+                close();
+              }
+              if (event.target === inputRef.current && event.key === "ArrowDown") {
+                event.preventDefault();
+                setSelectedIndex((current) =>
+                  nextSelectedIndex(current, normalized.flat.length, 1)
+                );
+              }
+              if (event.target === inputRef.current && event.key === "ArrowUp") {
+                event.preventDefault();
+                setSelectedIndex((current) =>
+                  nextSelectedIndex(current, normalized.flat.length, -1)
+                );
+              }
+              if (
+                event.target === inputRef.current &&
+                event.key === "Enter" &&
+                normalized.flat.length
+              ) {
+                event.preventDefault();
+                openResult(normalized.flat[activeIndex >= 0 ? activeIndex : 0]);
+              }
+            }}
+          >
             <Dialog.Title className="sr-only">{text.triggerFull}</Dialog.Title>
             <Dialog.Description className="sr-only">{text.placeholder}</Dialog.Description>
-            <div className="min-w-0 border-b p-3">
+            <div className="min-w-0 border-b bg-background/45 p-3">
               <div className="flex items-center gap-2">
-                <div className="grid size-9 shrink-0 place-items-center rounded-md bg-primary/12 text-primary">
+                <div className="grid size-9 shrink-0 place-items-center rounded-md bg-primary/10 text-primary shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.18)]">
                   <Search className="size-5" />
                 </div>
                 <Input
@@ -204,15 +257,24 @@ export function GlobalSearch() {
                     setSelectedIndex(-1);
                   }}
                   placeholder={text.placeholder}
-                  className="min-w-0 flex-1 border-0 px-0 text-base shadow-none focus:ring-0"
+                  className="min-w-0 flex-1 border-0 bg-transparent px-0 text-base shadow-none focus:ring-0"
                   aria-label={text.triggerFull}
                 />
-                {results.isFetching ? <Loader2 className="size-4 shrink-0 animate-spin text-primary motion-reduce:animate-none" aria-hidden /> : null}
+                {results.isFetching ? (
+                  <Loader2
+                    className="size-4 shrink-0 animate-spin text-primary motion-reduce:animate-none"
+                    aria-hidden
+                  />
+                ) : null}
                 <Button size="icon" variant="ghost" onClick={close} aria-label={text.close}>
                   <X className="size-4" />
                 </Button>
               </div>
-              <div className="mt-3 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={text.categoriesTitle}>
+              <div
+                className="mt-3 flex gap-1.5 overflow-x-auto pb-1"
+                role="tablist"
+                aria-label={text.categoriesTitle}
+              >
                 {(["all", ...searchScopes] as GlobalSearchScope[]).map((item) => (
                   <button
                     key={item}
@@ -222,8 +284,10 @@ export function GlobalSearch() {
                       setSelectedIndex(-1);
                     }}
                     className={cn(
-                      "h-8 shrink-0 rounded-md border px-3 text-xs font-medium transition hover:border-primary/50",
-                      scope === item ? "border-primary/50 bg-primary/10 text-primary" : "bg-background text-muted-foreground"
+                      "h-8 shrink-0 rounded-md border px-3 text-xs font-medium transition hover:border-primary/50 hover:text-foreground",
+                      scope === item
+                        ? "border-primary/35 bg-primary/10 text-primary"
+                        : "bg-background text-muted-foreground"
                     )}
                     role="tab"
                     aria-selected={scope === item}
@@ -264,9 +328,15 @@ export function GlobalSearch() {
                   />
                 )}
               </div>
-              <aside className="hidden min-h-0 border-l bg-muted/35 p-4 md:block">
-                <p className="text-xs font-semibold uppercase text-muted-foreground">{text.previewTitle}</p>
-                {activeResult ? <ResultPreview item={activeResult} locale={locale} /> : <p className="mt-4 text-sm text-muted-foreground">{text.noPreview}</p>}
+              <aside className="hidden min-h-0 border-l bg-muted/25 p-4 md:block">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                  {text.previewTitle}
+                </p>
+                {activeResult ? (
+                  <ResultPreview item={activeResult} locale={locale} />
+                ) : (
+                  <p className="mt-4 text-sm text-muted-foreground">{text.noPreview}</p>
+                )}
               </aside>
             </div>
           </Dialog.Content>
@@ -293,21 +363,35 @@ function StartState({
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_17rem]">
       <section>
-        <p className="text-xs font-semibold uppercase text-muted-foreground">{text.examplesTitle}</p>
+        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          {text.examplesTitle}
+        </p>
         <div className="mt-2 grid gap-2">
           {text.examples.map((example) => (
-            <button key={example} type="button" onClick={() => onExample(example)} className="group flex min-h-11 items-center justify-between gap-3 rounded-md border bg-background px-3 py-2 text-left text-sm transition hover:border-primary/50">
+            <button
+              key={example}
+              type="button"
+              onClick={() => onExample(example)}
+              className="group flex min-h-11 items-center justify-between gap-3 rounded-md border bg-background px-3 py-2 text-left text-sm transition hover:border-primary/50 hover:bg-primary/5"
+            >
               <span>{example}</span>
               <Sparkles className="size-4 shrink-0 text-primary opacity-70" />
             </button>
           ))}
         </div>
       </section>
-      <section className="rounded-md border bg-muted/35 p-3">
-        <p className="text-xs font-semibold uppercase text-muted-foreground">{text.categoriesTitle}</p>
+      <section className="rounded-md border bg-muted/25 p-3">
+        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          {text.categoriesTitle}
+        </p>
         <div className="mt-2 flex flex-wrap gap-2">
           {text.categories.map(([id, label]) => (
-            <button key={id} type="button" onClick={() => onCategory(id)} className="rounded-md border bg-card px-2.5 py-1.5 text-xs text-muted-foreground transition hover:border-primary/50 hover:text-foreground">
+            <button
+              key={id}
+              type="button"
+              onClick={() => onCategory(id)}
+              className="rounded-md border bg-card px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-primary/50 hover:text-foreground"
+            >
               {label}
             </button>
           ))}
@@ -315,10 +399,17 @@ function StartState({
       </section>
       {recent.length ? (
         <section className="lg:col-span-2">
-          <p className="text-xs font-semibold uppercase text-muted-foreground">{text.recentTitle}</p>
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            {text.recentTitle}
+          </p>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
             {recent.slice(0, 6).map((item) => (
-              <button key={item.id} type="button" onClick={() => onRecent(item)} className="flex min-h-10 items-center gap-2 rounded-md border bg-background px-3 py-2 text-left text-sm transition hover:border-primary/50">
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => onRecent(item)}
+                className="flex min-h-10 items-center gap-2 rounded-md border bg-background px-3 py-2 text-left text-sm transition hover:border-primary/50 hover:bg-primary/5"
+              >
                 <Clock3 className="size-4 shrink-0 text-muted-foreground" />
                 <span className="truncate">{item.query}</span>
               </button>
@@ -350,10 +441,37 @@ function ResultState({
   onOpen: (item: FlatSearchItem) => void;
 }) {
   const text = copy[locale];
-  if (!queryReady) return <p className="text-sm text-muted-foreground">{text.semantic}</p>;
-  if (loading && !flat.length) return <p className="text-sm text-muted-foreground" aria-live="polite">{text.loading}</p>;
-  if (error) return <p className="text-sm text-destructive" aria-live="polite">{text.error}</p>;
-  if (!flat.length) return <div className="rounded-md border bg-muted/35 p-4"><p className="font-medium">{text.empty}</p><p className="mt-1 text-sm text-muted-foreground">{text.emptyHint}</p></div>;
+  if (!queryReady)
+    return (
+      <p className="rounded-md border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground">
+        {text.semantic}
+      </p>
+    );
+  if (loading && !flat.length)
+    return (
+      <p
+        className="rounded-md border border-dashed bg-muted/20 p-4 text-sm text-muted-foreground"
+        aria-live="polite"
+      >
+        {text.loading}
+      </p>
+    );
+  if (error)
+    return (
+      <p
+        className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+        aria-live="polite"
+      >
+        {text.error}
+      </p>
+    );
+  if (!flat.length)
+    return (
+      <div className="rounded-md border border-dashed bg-muted/20 p-4">
+        <p className="font-medium">{text.empty}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{text.emptyHint}</p>
+      </div>
+    );
 
   return (
     <div className="space-y-4" aria-live="polite">
@@ -365,7 +483,9 @@ function ResultState({
           <section key={scope}>
             <div className="mb-2 flex items-center gap-2">
               <Icon className="size-4 text-primary" />
-              <p className="text-xs font-semibold uppercase text-muted-foreground">{scopeLabels[locale][scope]}</p>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                {scopeLabels[locale][scope]}
+              </p>
               <Badge intent="neutral">{group.length}</Badge>
             </div>
             <div className="space-y-2">
@@ -375,18 +495,26 @@ function ResultState({
                   type="button"
                   onClick={() => onOpen(item)}
                   className={cn(
-                    "group block w-full rounded-md border bg-background p-3 text-left transition hover:border-primary/50",
-                    selectedId === item.id && "border-primary/55 bg-primary/10"
+                    "group block w-full rounded-md border bg-background p-3 text-left transition hover:border-primary/50 hover:bg-primary/5",
+                    selectedId === item.id && "border-primary/40 bg-primary/10"
                   )}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate font-medium text-foreground">{item.title}</p>
-                      {item.subtitle ? <p className="mt-1 truncate text-sm text-muted-foreground">{item.subtitle}</p> : null}
+                      {item.subtitle ? (
+                        <p className="mt-1 truncate text-sm text-muted-foreground">
+                          {item.subtitle}
+                        </p>
+                      ) : null}
                     </div>
                     <ArrowRight className="mt-0.5 size-4 shrink-0 text-muted-foreground transition group-hover:text-primary" />
                   </div>
-                  {item.excerpt ? <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{item.excerpt}</p> : null}
+                  {item.excerpt ? (
+                    <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+                      {item.excerpt}
+                    </p>
+                  ) : null}
                 </button>
               ))}
             </div>
@@ -408,9 +536,17 @@ function ResultPreview({ item, locale }: { item: FlatSearchItem; locale: "ru" | 
       </div>
       <h2 className="mt-3 text-base font-semibold">{item.title}</h2>
       {item.subtitle ? <p className="mt-1 text-sm text-muted-foreground">{item.subtitle}</p> : null}
-      {item.excerpt ? <p className="mt-3 line-clamp-5 text-sm text-muted-foreground">{item.excerpt}</p> : null}
-      {typeof item.score === "number" ? <p className="mt-3 text-xs text-muted-foreground">{locale === "en" ? "Score" : "Релевантность"}: {Math.round(item.score * 100) / 100}</p> : null}
-      <p className="mt-4 text-xs font-medium text-primary">{text.open} <ArrowRight className="inline size-3" /></p>
+      {item.excerpt ? (
+        <p className="mt-3 line-clamp-5 text-sm text-muted-foreground">{item.excerpt}</p>
+      ) : null}
+      {typeof item.score === "number" ? (
+        <p className="mt-3 text-xs text-muted-foreground">
+          {locale === "en" ? "Score" : "Релевантность"}: {Math.round(item.score * 100) / 100}
+        </p>
+      ) : null}
+      <p className="mt-4 text-xs font-medium text-primary">
+        {text.open} <ArrowRight className="inline size-3" />
+      </p>
     </div>
   );
 }

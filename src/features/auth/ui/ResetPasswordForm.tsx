@@ -27,24 +27,43 @@ export function ResetPasswordForm() {
 
   return (
     <form className="space-y-4" onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>
-      {!token ? <ErrorState title="Ссылка недействительна" message="Запросите новую ссылку для сброса пароля." /> : null}
-      {mutation.error ? <ErrorState message="Не удалось сменить пароль. Проверьте срок действия ссылки." /> : null}
+      {!token ? (
+        <ErrorState
+          title="Ссылка не открылась"
+          message="Запросите новую ссылку для смены пароля."
+        />
+      ) : null}
+      {mutation.error ? (
+        <ErrorState message="Не удалось сохранить новый пароль. Проверьте срок действия ссылки." />
+      ) : null}
       <label className="block space-y-1.5 text-sm">
         <span className="font-medium">Новый пароль</span>
-        <Input type="password" autoComplete="new-password" {...form.register("password")} />
+        <Input
+          type="password"
+          autoComplete="new-password"
+          placeholder="Минимум 8 символов"
+          {...form.register("password")}
+        />
         {form.formState.errors.password ? (
           <span className="text-xs text-destructive">{form.formState.errors.password.message}</span>
         ) : null}
       </label>
       <label className="block space-y-1.5 text-sm">
         <span className="font-medium">Повторите пароль</span>
-        <Input type="password" autoComplete="new-password" {...form.register("confirmPassword")} />
+        <Input
+          type="password"
+          autoComplete="new-password"
+          placeholder="Повторите новый пароль"
+          {...form.register("confirmPassword")}
+        />
         {form.formState.errors.confirmPassword ? (
-          <span className="text-xs text-destructive">{form.formState.errors.confirmPassword.message}</span>
+          <span className="text-xs text-destructive">
+            {form.formState.errors.confirmPassword.message}
+          </span>
         ) : null}
       </label>
       <Button className="w-full" type="submit" disabled={!token} loading={mutation.isPending}>
-        Сменить пароль
+        Сохранить пароль
       </Button>
     </form>
   );

@@ -24,24 +24,31 @@ export function ForgotPasswordForm() {
 
   if (sent) {
     return (
-      <div className="rounded-md border bg-muted/45 p-4 text-sm text-muted-foreground">
-        Если аккаунт существует и доступен, ссылка для сброса будет отправлена на указанную почту.
+      <div className="rounded-md border border-success/25 bg-success/10 p-4 text-sm leading-6 text-muted-foreground">
+        Если этот email есть в рабочем пространстве, мы отправили ссылку для смены пароля.
       </div>
     );
   }
 
   return (
     <form className="space-y-4" onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>
-      {mutation.error ? <ErrorState message="Не удалось отправить запрос. Попробуйте еще раз." /> : null}
+      {mutation.error ? (
+        <ErrorState message="Не удалось отправить письмо. Попробуйте ещё раз." />
+      ) : null}
       <label className="block space-y-1.5 text-sm">
         <span className="font-medium">Email</span>
-        <Input type="email" autoComplete="username" {...form.register("email")} />
+        <Input
+          type="email"
+          autoComplete="username"
+          placeholder="name@company.com"
+          {...form.register("email")}
+        />
         {form.formState.errors.email ? (
           <span className="text-xs text-destructive">{form.formState.errors.email.message}</span>
         ) : null}
       </label>
       <Button className="w-full" type="submit" loading={mutation.isPending}>
-        Отправить ссылку
+        Получить ссылку
       </Button>
     </form>
   );
