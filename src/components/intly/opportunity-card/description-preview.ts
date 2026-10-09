@@ -32,7 +32,8 @@ export function descriptionPreviewText(description: string) {
     .replace(/<\s*\/\s*li\s*>/gi, "\n")
     .replace(/<\s*\/\s*(?:ul|ol)\s*>/gi, "\n\n")
     .replace(/<\s*(?:p|div|section|article|h[1-6]|blockquote|pre|ul|ol)\b[^>]*>/gi, "\n")
-    .replace(/<\/?(?:p|div|br|ul|ol|li|h[1-6]|blockquote|section|article|strong|em|b|i|span|a|code|pre)\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi, "");
+    .replace(/<\/?(?:p|div|br|ul|ol|li|h[1-6]|blockquote|section|article|strong|em|b|i|span|a|code|pre)\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi, "")
+    .replace(/<\/?(?:p|div|br|ul|ol|li|h[1-6]|blockquote|section|article|strong|em|b|i|span|a|code|pre)\b[^>]*$/gi, "");
   return decodeDescriptionEntities(text)
     .replace(/\r\n?/g, "\n")
     .split("\n")

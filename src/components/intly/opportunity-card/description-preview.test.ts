@@ -30,4 +30,9 @@ describe("descriptionPreviewText", () => {
   it("removes hidden payload even when no visible HTML tags exist", () => {
     expect(descriptionPreviewText("<!-- hidden --><script>alert(1)</script><style>.x{display:none}</style>")).toBe("");
   });
+
+  it("removes a trailing HTML fragment when a search excerpt is cut mid-tag", () => {
+    expect(descriptionPreviewText("<p>Python role</p><ul><li>Build APIs</li")).toBe("Python role\n\n• Build APIs");
+    expect(descriptionPreviewText('<p>Python role</p><a href="https://example')).toBe("Python role");
+  });
 });
